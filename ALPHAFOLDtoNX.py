@@ -1,4 +1,4 @@
-# Alphafold > NetworkX Graph Representation of Proteins
+# Alphafold + RDKit + DSSP > NetworkX Graph Representation of Proteins
 # Currently operates on GCS
 import os
 import io
