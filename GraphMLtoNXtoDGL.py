@@ -1,5 +1,5 @@
 # Deep Graph Library Graph Representation of Proteins
-# Currently takes input from GraphML (excpects GCS blob structure of directory-subdrectory-GraphML)
+# Currently takes input from GraphML (excpects structure of directory-subdrectory-GraphML)
 # TODO: Change input to NX 
 import os
 import dgl
@@ -9,6 +9,8 @@ import torch
 import networkx as nx
 from sklearn import preprocessing
 from collections import defaultdict
+
+INPUT_DATA = ""
 
 # a dictionary to map node labels to integers
 node_mapping = defaultdict(int)
