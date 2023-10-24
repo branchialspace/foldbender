@@ -1,4 +1,4 @@
-# FASTA > ALPHAFOLD DB > DRIVE
+# FASTA > ALPHAFOLD DB > PDB, JSON
 from Bio import SeqIO
 import os
 import requests
