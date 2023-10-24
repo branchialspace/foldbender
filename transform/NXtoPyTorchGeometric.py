@@ -1,5 +1,6 @@
 # NetworkX > PyTorch Geometric Graph Representation of proteins
-# Currently reads and writes to GCS - TODO: Abstract reading and writing files away.
+# Currently reads and writes to GCS using Graphgium structure of pyg data object
+# TODO: Abstract reading and writing files away, use standard pyg data object structure
 import os
 import torch
 import networkx as nx
