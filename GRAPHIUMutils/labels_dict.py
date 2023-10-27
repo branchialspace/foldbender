@@ -1,4 +1,6 @@
 # Implement Labels Dict SingleTaskDataset
+# TODO: - Revert graphium fork pyg utils to work with singletask labels dict.
+#       - Modify labels dict to single tensor for singletask.
 import torch
 from google.cloud import storage
 import pandas as pd
