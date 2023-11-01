@@ -1,30 +1,21 @@
 # NetworkX > PyTorch Geometric Graph Representation of proteins
-# Currently reads and writes to GCS using Graphgium structure of pyg data object
-# TODO: Abstract reading and writing files away, use standard pyg data object structure
 import os
 import torch
 import networkx as nx
 from sklearn import preprocessing
 from collections import defaultdict
 import pickle
-from google.cloud import storage
-import tempfile
 from torch_geometric.data import Data
 import numpy as np
-from google.cloud import storage
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/content/drive/MyDrive/instant-tape-*****.json"
-storage_client = storage.Client()
-
-input_bucket = storage_client.get_bucket('proteins_sample')
-blobs = list(input_bucket.list_blobs())
-output_bucket = storage_client.get_bucket('pyg-molecular')
+input_dir = '/path/to/local/input/directory'
+output_dir = '/path/to/local/output/directory'
 
 # Initialize OneHotEncoders for atom_name, atom_type, residue_name and secondary_structure
-ohe_atom_names = preprocessing.OneHotEncoder(sparse_output=False)
-ohe_atom_types = preprocessing.OneHotEncoder(sparse_output=False)
-ohe_residue_names = preprocessing.OneHotEncoder(sparse_output=False)
-ohe_secondary_structures = preprocessing.OneHotEncoder(sparse_output=False)
+ohe_atom_names = preprocessing.OneHotEncoder(sparse=False)
+ohe_atom_types = preprocessing.OneHotEncoder(sparse=False)
+ohe_residue_names = preprocessing.OneHotEncoder(sparse=False)
+ohe_secondary_structures = preprocessing.OneHotEncoder(sparse=False)
 
 # Collect unique categorical values for each feature
 unique_atom_names = set()
@@ -32,23 +23,20 @@ unique_atom_types = set()
 unique_residue_names = set()
 unique_secondary_structures = set()
 
-# Iterate over all blobs
-for blob in blobs:
-    if blob.name.endswith(".pickle"):
-        # Create a temporary file to download the blob content
-        with tempfile.NamedTemporaryFile() as temp_file:
-            blob.download_to_file(temp_file)
-            temp_file.seek(0)
+# Iterate over all files in the input directory
+for filename in os.listdir(input_dir):
+    if filename.endswith(".pickle"):
+        filepath = os.path.join(input_dir, filename)
 
-            # Load the NetworkX graph
-            with open(temp_file.name, 'rb') as file:
-                G = pickle.load(file)
+        # Load the NetworkX graph
+        with open(filepath, 'rb') as file:
+            G = pickle.load(file)
 
-            for node, data in G.nodes(data=True):
-                unique_atom_names.add(data['atom_name'])
-                unique_atom_types.add(data['atomic_number'])
-                unique_residue_names.add(data['residue_name'])
-                unique_secondary_structures.add(data['secondary_structure'])
+        for node, data in G.nodes(data=True):
+            unique_atom_names.add(data['atom_name'])
+            unique_atom_types.add(data['atomic_number'])
+            unique_residue_names.add(data['residue_name'])
+            unique_secondary_structures.add(data['secondary_structure'])
 
 # Fit the OneHotEncoders
 ohe_atom_names.fit(np.array(list(unique_atom_names)).reshape(-1, 1))
@@ -56,17 +44,14 @@ ohe_atom_types.fit(np.array(list(unique_atom_types)).reshape(-1, 1))
 ohe_residue_names.fit(np.array(list(unique_residue_names)).reshape(-1, 1))
 ohe_secondary_structures.fit(np.array(list(unique_secondary_structures)).reshape(-1, 1))
 
-# Iterate over the blobs again to create and save PyG graphs
-for blob in blobs:
-    if blob.name.endswith(".pickle"):
-        # Create a temporary file to download the blob content
-        with tempfile.NamedTemporaryFile() as temp_file:
-            blob.download_to_file(temp_file)
-            temp_file.seek(0)
+# Iterate over the files again to create and save PyG graphs
+for filename in os.listdir(input_dir):
+    if filename.endswith(".pickle"):
+        filepath = os.path.join(input_dir, filename)
 
-            # Load the NetworkX graph
-            with open(temp_file.name, 'rb') as file:
-                G = pickle.load(file)
+        # Load the NetworkX graph
+        with open(filepath, 'rb') as file:
+            G = pickle.load(file)
 
             # Add mirrored edges if they do not exist
             for node1, node2, data in G.edges(data=True):
@@ -136,12 +121,11 @@ for blob in blobs:
             atom_coords = torch.stack(atom_coords_list)
 
             # Construct the PyG graph
-            data = Data(edge_index=edge_index, edge_weight=edge_weight, num_nodes=len(G), feat=feat, edge_feat=edge_feat, atom_coords=atom_coords)
+        data = Data(edge_index=edge_index, edge_weight=edge_weight, num_nodes=len(G), feat=feat, edge_feat=edge_feat, atom_coords=atom_coords)
 
-            # Construct the dictionary and save it using PyTorch's serialization
-            data_dict = {'graph_with_features': data}
-            output_filename = blob.name.replace('.pickle', '.pkl') # Change extension to .pt
-            torch.save(data_dict, output_filename)
-            # Save to the output bucket
-            output_blob = output_bucket.blob(output_filename)
-            output_blob.upload_from_filename(output_filename)
+        # Construct the dictionary and save it using PyTorch's serialization
+        data_dict = {'graph_with_features': data}
+        output_filename = filename.replace('.pickle', '.pt') # Change extension to .pt
+
+        # Save the PyTorch object to the local file system
+        torch.save(data_dict, os.path.join(output_dir, output_filename))
