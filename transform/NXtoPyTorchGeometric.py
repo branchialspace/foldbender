@@ -116,13 +116,12 @@ for filename in os.listdir(input_dir):
 
             # Convert lists to tensors
             edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
-            edge_weight = torch.ones(edge_index.size(1), dtype=torch.float)
             feat = torch.stack(feat)
             edge_feat = torch.tensor(edge_feat, dtype=torch.float)
             atom_coords = torch.stack(atom_coords_list)
 
             # Construct the PyG graph
-            data = Data(edge_index=edge_index, edge_weight=edge_weight, num_nodes=len(G), feat=feat, edge_feat=edge_feat, atom_coords=atom_coords)
+            data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, atom_coords=atom_coords)
 
             # Construct the dictionary and save it using the variable name derived from filename
             data_dict = {data_object_name: data}
