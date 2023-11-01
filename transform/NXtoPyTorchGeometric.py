@@ -47,6 +47,7 @@ ohe_secondary_structures.fit(np.array(list(unique_secondary_structures)).reshape
 # Iterate over the files again to create and save PyG graphs
 for filename in os.listdir(input_dir):
     if filename.endswith(".pickle"):
+        data_object_name = filename.replace('.pickle', '')
         filepath = os.path.join(input_dir, filename)
 
         # Load the NetworkX graph
@@ -121,11 +122,12 @@ for filename in os.listdir(input_dir):
             atom_coords = torch.stack(atom_coords_list)
 
             # Construct the PyG graph
-        data = Data(edge_index=edge_index, edge_weight=edge_weight, num_nodes=len(G), feat=feat, edge_feat=edge_feat, atom_coords=atom_coords)
+            data = Data(edge_index=edge_index, edge_weight=edge_weight, num_nodes=len(G), feat=feat, edge_feat=edge_feat, atom_coords=atom_coords)
 
-        # Construct the dictionary and save it using PyTorch's serialization
-        data_dict = {'graph_with_features': data}
-        output_filename = filename.replace('.pickle', '.pt') # Change extension to .pt
+            # Construct the dictionary and save it using the variable name derived from filename
+            data_dict = {data_object_name: data}
+            output_filename = f'{data_object_name}.pt' # Change extension to .pt
 
-        # Save the PyTorch object to the local file system
-        torch.save(data_dict, os.path.join(output_dir, output_filename))
+            # Save the PyTorch object to the local file system
+            torch.save(data_dict, os.path.join(output_dir, output_filename))
+
