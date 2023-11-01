@@ -120,10 +120,24 @@ for filename in os.listdir(input_dir):
             edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
             feat = torch.stack(feat)
             edge_feat = torch.tensor(edge_feat, dtype=torch.float)
-            atom_coords = torch.stack(atom_coords_list)
 
+            # Calculate geometric center and re-align atom_coords
+            atom_coords_array = torch.stack(atom_coords_list)
+            geometric_center = torch.mean(atom_coords_array, dim=0)
+            aligned_atom_coords_list = [coords - geometric_center for coords in atom_coords_array]
+            # Limit coordinates to 4 decimal places
+            aligned_atom_coords_list = [coords.round(decimals=4) for coords in aligned_atom_coords_list]
+    
+            # Convert lists to tensors
+            edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
+            feat = torch.stack(feat)
+            edge_feat = torch.tensor(edge_feat, dtype=torch.float)
+            # Update atom_coords with the aligned and limited precision coords
+            atom_coords = torch.stack(aligned_atom_coords_list)
+    
             # Construct the PyG graph
             data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, atom_coords=atom_coords)
+    
 
             # Construct the dictionary and save it using the variable name derived from filename
             data_dict = {data_object_name: data}
