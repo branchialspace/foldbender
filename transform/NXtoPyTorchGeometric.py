@@ -80,6 +80,7 @@ for filename in os.listdir(input_dir):
                 # Node features
                 atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")])
                 atom_coords_list.append(atom_coords)
+                exposure_limited = round(data['exposure'], 4) # Limit exposure to 4 decimal places
                 feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]])).squeeze(0),
                         torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
                         torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
@@ -88,7 +89,7 @@ for filename in os.listdir(input_dir):
                                       data['aromatic'],
                                       data['residue_number'],
                                       data['plddt'],
-                                      data['exposure'],
+                                      exposure_limited,
                                       data['phi'],
                                       data['psi'],
                                       data['NH_O_1_relidx'],
