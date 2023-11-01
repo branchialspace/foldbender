@@ -116,7 +116,6 @@ for filename in os.listdir(input_dir):
                         0])  # 0 for PAE in bond edges
                 edge_index.append((node_mapping[node1], node_mapping[node2]))
 
-
             # Convert lists to tensors
             edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
             feat = torch.stack(feat)
