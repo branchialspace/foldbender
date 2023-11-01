@@ -107,12 +107,15 @@ for filename in os.listdir(input_dir):
                 if 'pae' in data:
                     edge_feat.append([0, 0, 0, data.get('pae')])
                 else:
+                    # Limit bond_length to 4 decimal places
+                    bond_length_limited = round(data.get('bond_length', 0), 4)
                     edge_feat.append([
                         data.get('bond_idx', 0),
                         data.get('bond_order', 0),
-                        data.get('bond_length', 0),
+                        bond_length_limited,
                         0])  # 0 for PAE in bond edges
                 edge_index.append((node_mapping[node1], node_mapping[node2]))
+
 
             # Convert lists to tensors
             edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
