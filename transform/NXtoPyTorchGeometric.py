@@ -8,14 +8,14 @@ import pickle
 from torch_geometric.data import Data
 import numpy as np
 
-input_dir = '/path/to/local/input/directory'
-output_dir = '/path/to/local/output/directory'
+input_dir = '/proteins_sample/'
+output_dir = '/content/drive/MyDrive/protein-DATA/prot-pyg-sample/'
 
 # Initialize OneHotEncoders for atom_name, atom_type, residue_name and secondary_structure
-ohe_atom_names = preprocessing.OneHotEncoder(sparse=False)
-ohe_atom_types = preprocessing.OneHotEncoder(sparse=False)
-ohe_residue_names = preprocessing.OneHotEncoder(sparse=False)
-ohe_secondary_structures = preprocessing.OneHotEncoder(sparse=False)
+ohe_atom_names = preprocessing.OneHotEncoder(sparse_output=False)
+ohe_atom_types = preprocessing.OneHotEncoder(sparse_output=False)
+ohe_residue_names = preprocessing.OneHotEncoder(sparse_output=False)
+ohe_secondary_structures = preprocessing.OneHotEncoder(sparse_output=False)
 
 # Collect unique categorical values for each feature
 unique_atom_names = set()
@@ -99,7 +99,7 @@ for filename in os.listdir(input_dir):
                                       data['NH_O_2_relidx'],
                                       data['NH_O_2_energy'],
                                       data['O_NH_2_relidx'],
-                                      data['O_NH_2_energy']]], dtype=torch.float)
+                                      data['O_NH_2_energy']]], dtype=torch.float).squeeze(0)
                     ], dim=0))
 
 
@@ -118,7 +118,7 @@ for filename in os.listdir(input_dir):
                 edge_index.append((node_mapping[node1], node_mapping[node2]))
 
             # Convert lists to tensors
-            edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
+            edge_index = torch.LongTensor(edge_index).t().contiguous()
             feat = torch.stack(feat)
             edge_feat = torch.tensor(edge_feat, dtype=torch.float)
 
@@ -128,11 +128,7 @@ for filename in os.listdir(input_dir):
             aligned_atom_coords_list = [coords - geometric_center for coords in atom_coords_array]
             # Scale up, round to nearest integer, and scale down to limit coordinates to 4 decimal places
             aligned_atom_coords_list = [(coords * 10000).round() / 10000 for coords in aligned_atom_coords_list]
-    
-            # Convert lists to tensors
-            edge_index = torch.tensor(edge_index, dtype=torch.long).t().contiguous()
-            feat = torch.stack(feat)
-            edge_feat = torch.tensor(edge_feat, dtype=torch.float)
+
             # Update atom_coords with the aligned and limited precision coords
             atom_coords = torch.stack(aligned_atom_coords_list)
     
@@ -141,7 +137,7 @@ for filename in os.listdir(input_dir):
     
             # Construct the dictionary and save it using the variable name derived from filename
             data_dict = {data_object_name: data}
-            output_filename = f'{data_object_name}.pt' # Change extension to .pt
+            output_filename = f'{data_object_name}.pt'
 
             # Save the PyTorch object to the local file system
             torch.save(data_dict, os.path.join(output_dir, output_filename))
