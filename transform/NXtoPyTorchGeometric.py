@@ -7,9 +7,11 @@ from collections import defaultdict
 import pickle
 from torch_geometric.data import Data
 import numpy as np
+import csv
 
 input_dir = '/proteins_sample/'
 output_dir = '/content/drive/MyDrive/protein-DATA/prot-pyg-sample/'
+categories_path = '/content/drive/MyDrive/protein-DATA/ohe-categories.csv'
 
 # Initialize OneHotEncoders for atom_name, atom_type, residue_name and secondary_structure
 ohe_atom_names = preprocessing.OneHotEncoder(sparse_output=False)
@@ -43,6 +45,14 @@ ohe_atom_names.fit(np.array(list(unique_atom_names)).reshape(-1, 1))
 ohe_atom_types.fit(np.array(list(unique_atom_types)).reshape(-1, 1))
 ohe_residue_names.fit(np.array(list(unique_residue_names)).reshape(-1, 1))
 ohe_secondary_structures.fit(np.array(list(unique_secondary_structures)).reshape(-1, 1))
+
+# Write the unique categories to the file
+with open(categories_path, 'w', newline='') as csvfile:
+    category_writer = csv.writer(csvfile)
+    category_writer.writerow(['atom_name'] + list(unique_atom_names))
+    category_writer.writerow(['atom_type'] + list(unique_atom_types))
+    category_writer.writerow(['residue_name'] + list(unique_residue_names))
+    category_writer.writerow(['secondary_structure'] + list(unique_secondary_structures))
 
 # Iterate over the files again to create and save PyG graphs
 for filename in os.listdir(input_dir):
