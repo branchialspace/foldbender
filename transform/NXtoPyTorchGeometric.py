@@ -54,6 +54,10 @@ with open(categories_path, 'w', newline='') as csvfile:
     category_writer.writerow(['residue_name'] + list(unique_residue_names))
     category_writer.writerow(['secondary_structure'] + list(unique_secondary_structures))
 
+# Function to limit a value to four decimal places
+def limit_precision(value):
+    return round(value, 4) if isinstance(value, float) else value
+
 # Iterate over the files again to create and save PyG graphs
 for filename in os.listdir(input_dir):
     if filename.endswith(".pickle"):
@@ -90,41 +94,37 @@ for filename in os.listdir(input_dir):
                 # Node features
                 atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")])
                 atom_coords_list.append(atom_coords)
-                exposure_limited = round(data['exposure'], 4) # Limit exposure to 4 decimal places
                 feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]])).squeeze(0),
-                        torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
-                        torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
-                        torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
-                        torch.tensor([[data['degree'],
-                                      data['aromatic'],
-                                      data['residue_number'],
-                                      data['plddt'],
-                                      exposure_limited,
-                                      data['phi'],
-                                      data['psi'],
-                                      data['NH_O_1_relidx'],
-                                      data['NH_O_1_energy'],
-                                      data['O_NH_1_relidx'],
-                                      data['O_NH_1_energy'],
-                                      data['NH_O_2_relidx'],
-                                      data['NH_O_2_energy'],
-                                      data['O_NH_2_relidx'],
-                                      data['O_NH_2_energy']]], dtype=torch.float).squeeze(0)
-                    ], dim=0))
-
+                           torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
+                           torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
+                           torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
+                           torch.tensor([[limit_precision(data['degree']),
+                                          limit_precision(data['aromatic']),
+                                          limit_precision(data['residue_number']),
+                                          limit_precision(data['plddt']),
+                                          limit_precision(data['exposure']),
+                                          limit_precision(data['phi']),
+                                          limit_precision(data['psi']),
+                                          limit_precision(data['NH_O_1_relidx']),
+                                          limit_precision(data['NH_O_1_energy']),
+                                          limit_precision(data['O_NH_1_relidx']),
+                                          limit_precision(data['O_NH_1_energy']),
+                                          limit_precision(data['NH_O_2_relidx']),
+                                          limit_precision(data['NH_O_2_energy']),
+                                          limit_precision(data['O_NH_2_relidx']),
+                                          limit_precision(data['O_NH_2_energy'])
+                                        ]], dtype=torch.float).squeeze(0)
+                          ], dim=0))
 
             for node1, node2, data in G.edges(data=True):
                 # edge feature includes bond_idx, bond_order, bond_length and pae
                 if 'pae' in data:
                     edge_feat.append([0, 0, 0, data.get('pae')])
                 else:
-                    # Limit bond_length to 4 decimal places
-                    bond_length_limited = round(data.get('bond_length', 0), 4)
-                    edge_feat.append([
-                        data.get('bond_idx', 0),
-                        data.get('bond_order', 0),
-                        bond_length_limited,
-                        0])  # 0 for PAE in bond edges
+                    edge_feat.append([limit_precision(data.get('bond_idx', 0)),
+                      limit_precision(data.get('bond_order', 0)),
+                      limit_precision(data.get('bond_length', 0)),
+                      limit_precision(data.get('pae', 0))])
                 edge_index.append((node_mapping[node1], node_mapping[node2]))
 
             # Convert lists to tensors
