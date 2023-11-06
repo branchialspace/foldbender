@@ -95,36 +95,37 @@ for filename in os.listdir(input_dir):
                 atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")])
                 atom_coords_list.append(atom_coords)
                 feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]])).squeeze(0),
-                           torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
-                           torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
-                           torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
-                           torch.tensor([[limit_precision(data['degree']),
-                                          limit_precision(data['aromatic']),
-                                          limit_precision(data['residue_number']),
-                                          limit_precision(data['plddt']),
-                                          limit_precision(data['exposure']),
-                                          limit_precision(data['phi']),
-                                          limit_precision(data['psi']),
-                                          limit_precision(data['NH_O_1_relidx']),
-                                          limit_precision(data['NH_O_1_energy']),
-                                          limit_precision(data['O_NH_1_relidx']),
-                                          limit_precision(data['O_NH_1_energy']),
-                                          limit_precision(data['NH_O_2_relidx']),
-                                          limit_precision(data['NH_O_2_energy']),
-                                          limit_precision(data['O_NH_2_relidx']),
-                                          limit_precision(data['O_NH_2_energy'])
-                                        ]], dtype=torch.float).squeeze(0)
-                          ], dim=0))
+                        torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
+                        torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
+                        torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
+                        torch.tensor([[data['degree'],
+                                      data['aromatic'],
+                                      data['residue_number'],
+                                      data['plddt'],
+                                      data['exposure'],
+                                      data['phi'],
+                                      data['psi'],
+                                      data['NH_O_1_relidx'],
+                                      data['NH_O_1_energy'],
+                                      data['O_NH_1_relidx'],
+                                      data['O_NH_1_energy'],
+                                      data['NH_O_2_relidx'],
+                                      data['NH_O_2_energy'],
+                                      data['O_NH_2_relidx'],
+                                      data['O_NH_2_energy']]], dtype=torch.float).squeeze(0)
+                    ], dim=0))
+
 
             for node1, node2, data in G.edges(data=True):
                 # edge feature includes bond_idx, bond_order, bond_length and pae
                 if 'pae' in data:
                     edge_feat.append([0, 0, 0, data.get('pae')])
                 else:
-                    edge_feat.append([limit_precision(data.get('bond_idx', 0)),
-                      limit_precision(data.get('bond_order', 0)),
-                      limit_precision(data.get('bond_length', 0)),
-                      limit_precision(data.get('pae', 0))])
+                    edge_feat.append([
+                        data.get('bond_idx', 0),
+                        data.get('bond_order', 0),
+                        data.get('bond_length', 0),
+                        0])  # 0 for PAE in bond edges
                 edge_index.append((node_mapping[node1], node_mapping[node2]))
 
             # Convert lists to tensors
@@ -136,8 +137,6 @@ for filename in os.listdir(input_dir):
             atom_coords_array = torch.stack(atom_coords_list)
             geometric_center = torch.mean(atom_coords_array, dim=0)
             aligned_atom_coords_list = [coords - geometric_center for coords in atom_coords_array]
-            # Scale up, round to nearest integer, and scale down to limit coordinates to 4 decimal places
-            aligned_atom_coords_list = [(coords * 10000).round() / 10000 for coords in aligned_atom_coords_list]
 
             # Update atom_coords with the aligned and limited precision coords
             atom_coords = torch.stack(aligned_atom_coords_list)
