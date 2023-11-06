@@ -6,9 +6,10 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from torch_geometric.data import Data
 
-input_dir = '/content/drive/MyDrive/protein-DATA/prot-pyg-sample'
+input_dir = '/content/drive/MyDrive/protein-DATA/prot-sample'
 output_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
 stats = '/content/drive/MyDrive/protein-DATA/minmax-stats.csv'
+norm_stats = '/content/drive/MyDrive/protein-DATA/norm-stats.csv'
 
 # Initialize global min and max arrays
 global_x_min = None
@@ -52,6 +53,16 @@ scaling_parameters_df = pd.DataFrame({
     'max': np.concatenate((global_x_max, global_edge_attr_max))
 })
 
+# Save the scaling parameters to a CSV file
+scaling_parameters_df.to_csv(stats, index=False)
+
+# Initialize DataFrame for storing normalized and rounded min and max
+norm_rounded_stats = {
+    'feature': [],
+    'rounded_min': [],
+    'rounded_max': []
+}
+
 # Second pass to scale the data using the global min and max
 for file_name in os.listdir(input_dir):
     if file_name.endswith('.pt'):
@@ -68,13 +79,27 @@ for file_name in os.listdir(input_dir):
                         (torch.tensor(global_x_max, dtype=torch.float32) - torch.tensor(global_x_min, dtype=torch.float32))
         data_object.edge_attr = (data_object.edge_attr - torch.tensor(global_edge_attr_min, dtype=torch.float32)) / \
                                 (torch.tensor(global_edge_attr_max, dtype=torch.float32) - torch.tensor(global_edge_attr_min, dtype=torch.float32))
-
-        # Update the dictionary with the scaled Data object
+        
+        # Round the normalized values to four decimal places
+        data_object.x = torch.round(data_object.x * 10000) / 10000
+        data_object.edge_attr = torch.round(data_object.edge_attr * 10000) / 10000
+        
+        # Assuming atom_coords is a tensor in data_object, round it as well
+        if hasattr(data_object, 'atom_coords'):
+            data_object.atom_coords = torch.round(data_object.atom_coords * 10000) / 10000
+        
+        # Update the dictionary with the scaled and rounded Data object
         data_dict[data_key] = data_object
+
+        # Update normalized and rounded stats
+        norm_rounded_stats['feature'] += feature_names_x + feature_names_edge_attr
+        norm_rounded_stats['rounded_min'] += data_object.x.min(dim=0).values.tolist() + data_object.edge_attr.min(dim=0).values.tolist()
+        norm_rounded_stats['rounded_max'] += data_object.x.max(dim=0).values.tolist() + data_object.edge_attr.max(dim=0).values.tolist()
 
         # Save the modified data dictionary
         output_path = os.path.join(output_dir, file_name)
         torch.save(data_dict, output_path)
 
-# Save the scaling parameters to a CSV file
-scaling_parameters_df.to_csv(stats, index=False)
+# Convert normalized and rounded stats to DataFrame and save
+norm_rounded_stats_df = pd.DataFrame(norm_rounded_stats)
+norm_rounded_stats_df.to_csv(norm_stats, index=False)
