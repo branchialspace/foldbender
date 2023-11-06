@@ -10,7 +10,7 @@ import numpy as np
 import csv
 
 input_dir = '/proteins_sample/'
-output_dir = '/content/drive/MyDrive/protein-DATA/prot-pyg-sample/'
+output_dir = '/content/drive/MyDrive/protein-DATA/prot-sample/'
 categories_path = '/content/drive/MyDrive/protein-DATA/ohe-categories.csv'
 
 # Initialize OneHotEncoders for atom_name, atom_type, residue_name and secondary_structure
