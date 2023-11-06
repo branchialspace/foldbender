@@ -54,10 +54,6 @@ with open(categories_path, 'w', newline='') as csvfile:
     category_writer.writerow(['residue_name'] + list(unique_residue_names))
     category_writer.writerow(['secondary_structure'] + list(unique_secondary_structures))
 
-# Function to limit a value to four decimal places
-def limit_precision(value):
-    return round(value, 4) if isinstance(value, float) else value
-
 # Iterate over the files again to create and save PyG graphs
 for filename in os.listdir(input_dir):
     if filename.endswith(".pickle"):
