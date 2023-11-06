@@ -138,7 +138,7 @@ for filename in os.listdir(input_dir):
             geometric_center = torch.mean(atom_coords_array, dim=0)
             aligned_atom_coords_list = [coords - geometric_center for coords in atom_coords_array]
 
-            # Update atom_coords with the aligned and limited precision coords
+            # Update atom_coords with the aligned coords
             atom_coords = torch.stack(aligned_atom_coords_list)
     
             # Construct the PyG graph
