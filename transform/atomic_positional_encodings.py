@@ -10,8 +10,13 @@ def soap_local(directory):
     # Iterate over the .pt files in the directory
     for filename in os.listdir(directory):
         if filename.endswith('.pt'):
-            # Load the PyTorch Geometric Data object
-            data = torch.load(os.path.join(directory, filename))
+            # Load the dictionary containing the PyTorch Geometric Data object
+            file_path = os.path.join(directory, filename)
+            data_dict = torch.load(file_path)
+
+            # Extract the key for the data
+            data_key = filename.rstrip('.pt')
+            data = data_dict[data_key]
 
             # Retrieve the atom coordinates
             atom_coords = data['atom_coords']
@@ -30,10 +35,13 @@ def soap_local(directory):
                 local_descriptors.append(descriptor[i])  # Only append the descriptor for the central atom
 
             # Add the local descriptors to the data object
-            data['local_xyz'] = torch.tensor(local_descriptors)
+            data['local_soap'] = torch.tensor(local_descriptors, dtype=torch.float32)  # Ensure correct tensor type
 
-            # Save the modified data object back to disk
-            torch.save(data, os.path.join(directory, filename))
+            # Update the dictionary with the modified data object
+            data_dict[data_key] = data
+
+            # Save the updated dictionary back to disk
+            torch.save(data_dict, file_path)
             
     print("All local SOAP descriptors calculated and saved.")
 
