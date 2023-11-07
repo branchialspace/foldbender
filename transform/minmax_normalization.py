@@ -15,11 +15,11 @@ global_x_max = None
 global_edge_attr_min = None
 global_edge_attr_max = None
 
-# Initialize global normalized and rounded min and max
-global_norm_x_min = None
-global_norm_x_max = None
-global_norm_edge_attr_min = None
-global_norm_edge_attr_max = None
+# Initialize arrays to hold the minimum and maximum of normalized values
+norm_min_x = []
+norm_max_x = []
+norm_min_edge_attr = []
+norm_max_edge_attr = []
 
 # First pass to find the global min and max for each feature
 for file_name in os.listdir(input_dir):
@@ -40,17 +40,19 @@ for file_name in os.listdir(input_dir):
             global_edge_attr_min = np.minimum(global_edge_attr_min, data_object.edge_attr.min(dim=0).values.cpu().numpy())
             global_edge_attr_max = np.maximum(global_edge_attr_max, data_object.edge_attr.max(dim=0).values.cpu().numpy())
 
-# Save the global min and max values
+# Create a DataFrame for storing feature-wise min and max
 feature_names_x = [f'x_feature_{i}' for i in range(global_x_min.shape[0])]
 feature_names_edge_attr = [f'edge_attr_feature_{i}' for i in range(global_edge_attr_min.shape[0])]
+
 scaling_parameters_df = pd.DataFrame({
     'feature': feature_names_x + feature_names_edge_attr,
     'min': np.concatenate((global_x_min, global_edge_attr_min)),
     'max': np.concatenate((global_x_max, global_edge_attr_max))
 })
+
 scaling_parameters_df.to_csv(stats, index=False)
 
-# Second pass to scale the data and update the normalized and rounded global stats
+# Second pass to scale, round the data using the global min and max, and save the output
 for file_name in os.listdir(input_dir):
     if file_name.endswith('.pt'):
         data_path = os.path.join(input_dir, file_name)
@@ -58,44 +60,35 @@ for file_name in os.listdir(input_dir):
         data_key = file_name[:-3]
         data_object = data_dict[data_key]
 
-        # Normalize features
-        x_min_tensor = torch.tensor(global_x_min, dtype=torch.float32)
-        x_max_tensor = torch.tensor(global_x_max, dtype=torch.float32)
-        edge_attr_min_tensor = torch.tensor(global_edge_attr_min, dtype=torch.float32)
-        edge_attr_max_tensor = torch.tensor(global_edge_attr_max, dtype=torch.float32)
-        data_object.x = (data_object.x - x_min_tensor) / (x_max_tensor - x_min_tensor)
-        data_object.edge_attr = (data_object.edge_attr - edge_attr_min_tensor) / (edge_attr_max_tensor - edge_attr_min_tensor)
+        # Normalize x and edge_attr
+        data_object.x = (data_object.x - global_x_min) / (global_x_max - global_x_min)
+        data_object.edge_attr = (data_object.edge_attr - global_edge_attr_min) / (global_edge_attr_max - global_edge_attr_min)
 
-        # Round normalized values
+        # Round x and edge_attr before saving to the output file
         data_object.x = torch.round(data_object.x * 10000) / 10000
         data_object.edge_attr = torch.round(data_object.edge_attr * 10000) / 10000
 
-        # Update the dictionary with the scaled and rounded Data object
-        data_dict[data_key] = data_object
-        torch.save(data_dict, os.path.join(output_dir, file_name))
+        # Save the modified data dictionary with rounded values
+        output_path = os.path.join(output_dir, file_name)
+        torch.save(data_dict, output_path)
 
-        # Update global normalized and rounded min and max
-        if global_norm_x_min is None:
-            global_norm_x_min = data_object.x.min(dim=0).values.cpu().numpy()
-            global_norm_x_max = data_object.x.max(dim=0).values.cpu().numpy()
-            global_norm_edge_attr_min = data_object.edge_attr.min(dim=0).values.cpu().numpy()
-            global_norm_edge_attr_max = data_object.edge_attr.max(dim=0).values.cpu().numpy()
-        else:
-            global_norm_x_min = np.minimum(global_norm_x_min, data_object.x.min(dim=0).values.cpu().numpy())
-            global_norm_x_max = np.maximum(global_norm_x_max, data_object.x.max(dim=0).values.cpu().numpy())
-            global_norm_edge_attr_min = np.minimum(global_norm_edge_attr_min, data_object.edge_attr.min(dim=0).values.cpu().numpy())
-            global_norm_edge_attr_max = np.maximum(global_norm_edge_attr_max, data_object.edge_attr.max(dim=0).values.cpu().numpy())
+        # Update min and max for normalized and rounded values
+        norm_min_x.append(data_object.x.min(dim=0).values.cpu().numpy())
+        norm_max_x.append(data_object.x.max(dim=0).values.cpu().numpy())
+        norm_min_edge_attr.append(data_object.edge_attr.min(dim=0).values.cpu().numpy())
+        norm_max_edge_attr.append(data_object.edge_attr.max(dim=0).values.cpu().numpy())
 
-# Round the global normalized min and max to four decimal places
-global_norm_x_min = np.round(global_norm_x_min, 4)
-global_norm_x_max = np.round(global_norm_x_max, 4)
-global_norm_edge_attr_min = np.round(global_norm_edge_attr_min, 4)
-global_norm_edge_attr_max = np.round(global_norm_edge_attr_max, 4)
+# Calculate the overall min and max from the collected normalized and rounded values
+norm_min_x = np.round(np.min(norm_min_x, axis=0), 4)
+norm_max_x = np.round(np.max(norm_max_x, axis=0), 4)
+norm_min_edge_attr = np.round(np.min(norm_min_edge_attr, axis=0), 4)
+norm_max_edge_attr = np.round(np.max(norm_max_edge_attr, axis=0), 4)
 
-# Create a DataFrame for storing feature-wise normalized and rounded min and max
+# Prepare the final DataFrame with the global rounded min and max values
 norm_rounded_stats_df = pd.DataFrame({
     'feature': feature_names_x + feature_names_edge_attr,
-    'rounded_min': np.concatenate((global_norm_x_min, global_norm_edge_attr_min)),
-    'rounded_max': np.concatenate((global_norm_x_max, global_norm_edge_attr_max))
+    'rounded_min': np.concatenate((norm_min_x, norm_min_edge_attr)),
+    'rounded_max': np.concatenate((norm_max_x, norm_max_edge_attr))
 })
+
 norm_rounded_stats_df.to_csv(norm_stats, index=False)
