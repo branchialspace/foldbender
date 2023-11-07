@@ -77,6 +77,9 @@ for file_name in os.listdir(input_dir):
                         (torch.tensor(global_x_max, dtype=torch.float32) - torch.tensor(global_x_min, dtype=torch.float32))
         data_object.edge_attr = (data_object.edge_attr - torch.tensor(global_edge_attr_min, dtype=torch.float32)) / \
                                 (torch.tensor(global_edge_attr_max, dtype=torch.float32) - torch.tensor(global_edge_attr_min, dtype=torch.float32))
+
+        # Replace "nan" values in data_object.x with 0
+        data_object.x[torch.isnan(data_object.x)] = 0.0
         
         # Round the normalized values to four decimal places
         data_object.x = torch.round(data_object.x * 10000) / 10000
