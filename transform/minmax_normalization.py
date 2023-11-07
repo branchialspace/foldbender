@@ -81,6 +81,10 @@ for file_name in os.listdir(input_dir):
         # Round the normalized values to four decimal places
         data_object.x = torch.round(data_object.x * 10000) / 10000
         data_object.edge_attr = torch.round(data_object.edge_attr * 10000) / 10000
+        data_object.atom_coords = torch.round(data_object.atom_coords * 10000) / 10000
+        
+        # Update the dictionary with the scaled and rounded Data object
+        data_dict[data_key] = data_object
 
         # Accumulate min and max values for x and edge_attr
         accumulated_x_mins.append(data_object.x.min(dim=0).values)
