@@ -3,15 +3,22 @@ from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
 
-def soap_local(directory):
+input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
+output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
+
+def soap_local(input_directory, output_directory):
     # Initialize the SOAP descriptor
     soap = SOAP(species=["x", "y"], periodic=False, rcut=3.0, nmax=3, lmax=3, sigma=0.1)
+    
+    # Create the output directory if it does not exist
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
     # Iterate over the .pt files in the directory
-    for filename in os.listdir(directory):
+    for filename in os.listdir(input_directory):
         if filename.endswith('.pt'):
             # Load the dictionary containing the PyTorch Geometric Data object
-            file_path = os.path.join(directory, filename)
+            file_path = os.path.join(input_directory, filename)
             data_dict = torch.load(file_path)
 
             # Extract the key for the data
@@ -40,10 +47,12 @@ def soap_local(directory):
             # Update the dictionary with the modified data object
             data_dict[data_key] = data
 
-            # Save the updated dictionary back to disk
-            torch.save(data_dict, file_path)
-            
-    print("All local SOAP descriptors calculated and saved.")
+            # Define the path for the output file
+            output_file_path = os.path.join(output_directory, filename)
 
-# Usage
-# soap_local('/path/to/your/directory')
+            # Save the updated dictionary back to disk in the separate directory
+            torch.save(data_dict, output_file_path)
+            
+    print(f"All local SOAP descriptors calculated and saved to {output_directory}.")
+
+soap_local(input_directory, output_directory)
