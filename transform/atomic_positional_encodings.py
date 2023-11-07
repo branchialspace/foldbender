@@ -21,7 +21,7 @@ def calculate_bond_distances(edge_index, edge_attr, num_atoms):
 
 def soap_local(input_directory, output_directory):
     # Initialize the SOAP descriptor
-    soap = SOAP(species=["x", "y"], periodic=False, rcut=3.0, nmax=3, lmax=3, sigma=0.1)
+    soap = SOAP(species=["x", "y"], periodic=False, nmax=3, lmax=3, sigma=0.1)
     
     # Create the output directory if it does not exist
     if not os.path.exists(output_directory):
