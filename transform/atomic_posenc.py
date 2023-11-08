@@ -49,7 +49,8 @@ def soap_local(input_directory, output_directory):
                 local_descriptors.append(descriptor[0])
 
             # Add the local descriptors to the data object and save
-            data['local_soap'] = torch.tensor(local_descriptors, dtype=torch.float32)
+            local_descriptors_array = np.array(local_descriptors)
+            data['local_soap'] = torch.tensor(local_descriptors_array, dtype=torch.float32)
             data_dict[data_key] = data
             output_file_path = os.path.join(output_directory, filename)
             torch.save(data_dict, output_file_path)
