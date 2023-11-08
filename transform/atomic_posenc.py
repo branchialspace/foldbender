@@ -1,3 +1,4 @@
+# Atomic Positional Encodings
 import torch
 from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
