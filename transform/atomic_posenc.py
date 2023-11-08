@@ -33,7 +33,7 @@ def soap_local(input_directory, output_directory):
             local_descriptors = []
 
             # Initialize the SOAP descriptor
-            soap = SOAP(species=["H", "N"], periodic=False, r_cut=6, n_max=3, l_max=3, sigma=0.1)
+            soap = SOAP(species=["H", "N"], periodic=False, r_cut=5, n_max=2, l_max=2, sigma=0.1)
 
             # Calculate SOAP descriptor for each atom
             for i in range(num_atoms):
@@ -46,9 +46,10 @@ def soap_local(input_directory, output_directory):
 
                 # Calculate the descriptor for the central atom
                 descriptor = soap.create(system, centers=[i])
+                local_descriptors.append(descriptor[0])
 
             # Add the local descriptors to the data object and save
-            data['local_soap'] = torch.tensor(descriptor, dtype=torch.float32)
+            data['local_soap'] = torch.tensor(local_descriptors, dtype=torch.float32)
             data_dict[data_key] = data
             output_file_path = os.path.join(output_directory, filename)
             torch.save(data_dict, output_file_path)
