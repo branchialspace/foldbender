@@ -63,7 +63,7 @@ def calculate_bond_distances(edge_index, edge_attr, num_atoms, atom_coords):
 
 def soap_local(input_directory, output_directory):
     # Initialize the SOAP descriptor
-    soap = SOAP(species=["H", "N"], periodic=False, n_max=3, l_max=3, sigma=0.1)
+    soap = SOAP(species=["H", "N"], periodic=False, r_cut=dynamic_rcut, n_max=3, l_max=3, sigma=0.1)
     
     # Create the output directory if it does not exist
     if not os.path.exists(output_directory):
@@ -100,7 +100,7 @@ def soap_local(input_directory, output_directory):
 
                 # Update rcut for SOAP descriptor to be the distance to the farthest 3-bond distance atom
                 farthest_distance = bond_distances[i][0][1]  # Get the maximum distance
-                soap.r_cut(farthest_distance + 1e-3)  # Add a small buffer to include the farthest atom
+                dynamic_rcut = (farthest_distance + 1e-3)  # Add a small buffer to include the farthest atom
 
                 # Calculate the descriptor for the current atom
                 descriptor = soap.create(atom_coords, species=species)
