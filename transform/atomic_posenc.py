@@ -33,7 +33,7 @@ def soap_local(input_directory, output_directory):
             local_descriptors = []
 
             # Initialize the SOAP descriptor
-            soap = SOAP(species=["H", "N"], periodic=False, r_cut=5, n_max=2, l_max=2, sigma=0.1)
+            soap = SOAP(species=["H", "N"], periodic=False, r_cut=2.5, n_max=2, l_max=3, sigma=0.1)
 
             # Calculate SOAP descriptor for each atom
             for i in range(num_atoms):
