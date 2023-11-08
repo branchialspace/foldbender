@@ -1,5 +1,7 @@
-# Atomic Positional Encodings
 import torch
+import numpy as np
+import ase
+from ase import Atoms
 from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
@@ -30,29 +32,25 @@ def soap_local(input_directory, output_directory):
             # This will hold the local SOAP descriptors
             local_descriptors = []
 
-            # Initialize the SOAP descriptor with a static rcut value
+            # Initialize the SOAP descriptor
             soap = SOAP(species=["H", "N"], periodic=False, r_cut=6, n_max=3, l_max=3, sigma=0.1)
 
             # Calculate SOAP descriptor for each atom
             for i in range(num_atoms):
-                # Define the current atom as "H" and all others as "N"
-                species = ["N"] * num_atoms
-                species[i] = "H"  # The current atom is of type "H"
+                # Define the species array, 'N' for all atoms and 'H' for the current central atom
+                species = np.full(num_atoms, 'N', dtype=str)
+                species[i] = 'H'
 
-                # Calculate the descriptor for the current atom
-                descriptor = soap.create(atom_coords, species=species)
-                local_descriptors.append(descriptor[i])  # Only append the descriptor for the central atom
+                # Create an ASE Atoms object with 'H' for the central atom and 'N' for all other atoms
+                system = Atoms(symbols=species, positions=atom_coords.numpy())
 
-            # Add the local descriptors to the data object
-            data['local_soap'] = torch.tensor(local_descriptors, dtype=torch.float32)  # Ensure correct tensor type
+                # Calculate the descriptor for the central atom
+                descriptor = soap.create(system, centers=[i])
 
-            # Update the dictionary with the modified data object
+            # Add the local descriptors to the data object and save
+            data['local_soap'] = torch.tensor(descriptor, dtype=torch.float32)
             data_dict[data_key] = data
-
-            # Define the path for the output file
             output_file_path = os.path.join(output_directory, filename)
-
-            # Save the updated dictionary back to disk in the separate directory
             torch.save(data_dict, output_file_path)
 
     print(f"All local SOAP descriptors calculated and saved to {output_directory}.")
