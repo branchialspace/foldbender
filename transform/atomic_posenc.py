@@ -32,19 +32,15 @@ def soap_local(input_directory, output_directory):
             # This will hold the local SOAP descriptors
             local_descriptors = []
 
-            # Initialize the SOAP descriptor
-            soap = SOAP(species=["H", "N"], periodic=False, r_cut=2.5, n_max=2, l_max=3, sigma=0.1)
+            # Initialize the SOAP descriptor without specifying species
+            soap = SOAP(species=None, periodic=False, r_cut=2.5, n_max=2, l_max=3, sigma=0.1)
+
+            # Create an ASE Atoms object without specifying species
+            system = Atoms(numbers=np.ones(num_atoms), positions=atom_coords.numpy())
 
             # Calculate SOAP descriptor for each atom
             for i in range(num_atoms):
-                # Define the species array, 'N' for all atoms and 'H' for the current central atom
-                species = np.full(num_atoms, 'N', dtype=str)
-                species[i] = 'H'
-
-                # Create an ASE Atoms object with 'H' for the central atom and 'N' for all other atoms
-                system = Atoms(symbols=species, positions=atom_coords.numpy())
-
-                # Calculate the descriptor for the central atom
+                # Calculate the descriptor for the atom
                 descriptor = soap.create(system, centers=[i])
                 local_descriptors.append(descriptor[0])
 
