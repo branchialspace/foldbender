@@ -21,7 +21,7 @@ def soap_local(input_directory, output_directory):
             file_path = os.path.join(input_directory, filename)
             data_dict = torch.load(file_path)
 
-            # Extract the key for the data
+            # Extract the data
             data_key = filename.rstrip('.pt')
             data = data_dict[data_key]
 
@@ -44,6 +44,9 @@ def soap_local(input_directory, output_directory):
 
             # Concatenate the SOAP descriptors with the 'x' tensor
             data['x'] = torch.cat((features_x, soap_descriptors), dim=1)
+
+            # Delete the 'atom_coords' from the data
+            del data['atom_coords']
 
             # Save the updated data object
             data_dict[data_key] = data
