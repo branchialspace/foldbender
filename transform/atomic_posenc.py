@@ -25,8 +25,9 @@ def soap_local(input_directory, output_directory):
             data_key = filename.rstrip('.pt')
             data = data_dict[data_key]
 
-            # Retrieve the atom coordinates
+            # Retrieve the atom coordinates and existing 'x' tensor
             atom_coords = data['atom_coords']
+            features_x = data['x']
             num_atoms = len(atom_coords)
 
             # Initialize the SOAP descriptor
@@ -35,19 +36,20 @@ def soap_local(input_directory, output_directory):
             # Create an ASE Atoms object
             system = Atoms(numbers=np.ones(num_atoms), positions=atom_coords.numpy())
 
-            # Calculate SOAP descriptor for each atom and append it to x
+            # Calculate SOAP descriptor for each atom and append it to its corresponding feature vector
             for i in range(num_atoms):
                 # Calculate the descriptor for the atom
                 descriptor = soap.create(system, centers=[i])
-                # Append the descriptor to the 'x' tensor of the data
-                data['x'] = torch.cat((data['x'], torch.tensor(descriptor, dtype=torch.float32)), dim=1)
-                
+                # Append the descriptor to the corresponding feature vector in 'x'
+                features_x[i] = torch.cat((features_x[i], torch.tensor(descriptor, dtype=torch.float32).squeeze(0)))
+
             # Save the updated data object
+            data['x'] = features_x
             data_dict[data_key] = data
             output_file_path = os.path.join(output_directory, filename)
             torch.save(data_dict, output_file_path)
 
-    print(f"All local SOAP descriptors calculated and appended to 'x' and saved to {output_directory}.")
+    print(f"All local SOAP descriptors calculated, appended to 'x' and saved to {output_directory}.")
 
 # Call the function with the input and output directories
 soap_local(input_directory, output_directory)
