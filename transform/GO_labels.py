@@ -1,4 +1,3 @@
-# GO Labels
 import torch
 import pandas as pd
 import os
@@ -37,9 +36,8 @@ for filename in all_files:
             for term in entry_terms:
                 index = term_to_index[term]
                 y[index] = 1
-
-            # Add the 'y' tensor to the data dictionary
-            data_dict['y'] = y.view(1, -1)
+                
+            data_dict['y'] = y
 
             # Save the modified dictionary to the output directory
             torch.save(data_dict, os.path.join(output_directory, filename))
