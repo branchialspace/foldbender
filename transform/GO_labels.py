@@ -2,6 +2,7 @@
 import torch
 import pandas as pd
 import os
+from torch_geometric.data import Data
 
 input_directory = "/content/drive/MyDrive/protein-DATA/sample-atomic-encoded"
 output_directory = "/content/drive/MyDrive/protein-DATA/sample-encoded-labeled"
@@ -28,17 +29,16 @@ for filename in all_files:
 
         # If the filename (without .pt) exists in the df's EntryID column
         if entry_id in df['EntryID'].values:
-            # Load the .pt file from the local directory into a PyTorch tensor
-            data_dict = torch.load(os.path.join(input_directory, filename))
-
+            # Load the .pt file from the local directory into a PyTorch Geometric Data object
+            data_obj = torch.load(os.path.join(input_directory, filename))
+            
             # Create a binary vector for the terms associated with this entry
             y = torch.zeros(len(unique_terms), dtype=torch.float32)
             entry_terms = df[df['EntryID'] == entry_id]['term'].values
             for term in entry_terms:
                 index = term_to_index[term]
                 y[index] = 1
-                
-            data_dict['y'] = y
+                data_obj.y = y
 
-            # Save the modified dictionary to the output directory
-            torch.save(data_dict, os.path.join(output_directory, filename))
+                # Save the modified Data object to the output directory
+                torch.save(data_obj, os.path.join(output_directory, filename))
