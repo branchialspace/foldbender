@@ -39,7 +39,7 @@ val_indices, test_indices = train_test_split(temp_test_indices, **split_args_val
 # Save indices to a .pt file
 indices_dict = {
     'train': train_indices,
-    'val': val_indices,
+    'valid': val_indices,
     'test': test_indices
 }
 
