@@ -1,5 +1,6 @@
 # Multi-label stratified split for train, val, test sets
 import os
+import shutil
 import torch
 from collections import Counter
 from sklearn.model_selection import train_test_split
@@ -51,4 +52,4 @@ for split, indices in indices_dict.items():
         original_file_path = file_list[idx]
         new_file_name = f"{idx}.pt"  # File name is just the index number in the split
         new_file_path = os.path.join(input_directory, new_file_name)
-        os.rename(original_file_path, new_file_path)
+        shutil.move(original_file_path, new_file_path)
