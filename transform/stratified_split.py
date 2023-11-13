@@ -14,8 +14,8 @@ file_list = [os.path.join(input_directory, f) for f in os.listdir(input_director
 label_representations = []
 for file in file_list:
     data = torch.load(file)
-    labels = [key for key in data['labels'].keys() if key.startswith("GO:")]
-    label_representations.append(tuple(sorted(labels)))
+    label_indices = data.y.nonzero(as_tuple=True)[0]
+    label_representations.append(tuple(sorted(label_indices.tolist())))
 
 # Function to determine if stratification is possible
 def can_stratify(labels):
