@@ -49,7 +49,7 @@ torch.save(indices_dict, indices_file_path)
 # Rename files based on the split indices
 for split, indices in indices_dict.items():
     for idx in indices:
-        original_file_path = file_list[idx]
-        new_file_name = f"{idx}.pt"  # File name is just the index number in the split
+        original_file_path = os.path.join(input_directory, file_list[idx])
+        new_file_name = f"{idx}.pt"
         new_file_path = os.path.join(input_directory, new_file_name)
         shutil.move(original_file_path, new_file_path)
