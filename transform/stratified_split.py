@@ -7,13 +7,14 @@ from sklearn.model_selection import train_test_split
 input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
 indices_file_path = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
 
-# Load all files in the input directory
-file_list = [os.path.join(input_directory, f) for f in os.listdir(input_directory)]
+# Load all files in the input directory and create a mapping to their indices
+file_list = os.listdir(input_directory)
+file_path_to_index = {os.path.join(input_directory, file): idx for idx, file in enumerate(file_list)}
 
 # Extract labels for splitting purposes
 label_representations = []
 for file in file_list:
-    data = torch.load(file)
+    data = torch.load(os.path.join(input_directory, file))
     label_indices = data.y.nonzero(as_tuple=True)[0]
     label_representations.append(tuple(sorted(label_indices.tolist())))
 
@@ -35,7 +36,6 @@ if can_stratify(temp_label_representations):
     split_args_val_test["stratify"] = temp_label_representations
 
 val_indices, test_indices = train_test_split(temp_test_indices, **split_args_val_test)
-
 # Save indices to a .pt file
 indices_dict = {
     'train': train_indices,
@@ -44,3 +44,12 @@ indices_dict = {
 }
 
 torch.save(indices_dict, indices_file_path)
+
+# Rename files based on the split indices
+for split, indices in indices_dict.items():
+    for idx in indices:
+        original_file_path = file_list[idx]
+        index_in_file_list = file_path_to_index[original_file_path]
+        new_file_name = f"{index_in_file_list}.pt"
+        new_file_path = os.path.join(input_directory, new_file_name)
+        os.rename(original_file_path, new_file_path)
