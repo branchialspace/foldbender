@@ -4,8 +4,8 @@ import torch
 from collections import Counter
 from sklearn.model_selection import train_test_split
 
-input_directory = '/path/to/input/directory'
-indices_file_path = os.path.join(input_directory, 'dataset_indices.pt')
+input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
+indices_file_path = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
 
 # Load all files in the input directory
 file_list = [os.path.join(input_directory, f) for f in os.listdir(input_directory)]
