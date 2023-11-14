@@ -7,8 +7,8 @@ from torch_geometric.data import Dataset, Data
 
 class Alphafold(Dataset):
     def __init__(self, root: str):
-        self.root = '/drive/MyDrive/protein-DATA/sample-final'
-        self.split_file = '/drive/MyDrive/protein-DATA/dataset-indices.pt'
+        self.root = '/content/drive/MyDrive/protein-DATA/sample-final'
+        self.split_file = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
         super().__init__(root)
 
     @property
