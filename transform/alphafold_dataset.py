@@ -18,10 +18,10 @@ class Alphafold(Dataset):
             key=lambda x: int(re.findall(r'\d+', x)[0])
         )
 
-    def __len__(self):
+    def len(self):
         return len(self.processed_file_names)
 
-    def __getitem__(self, idx):
+    def get(self, idx):
         data_path = osp.join(self.root, self.processed_file_names[idx])
         data = torch.load(data_path)
         return data
