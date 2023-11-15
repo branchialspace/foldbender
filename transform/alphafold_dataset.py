@@ -28,3 +28,7 @@ class Alphafold(Dataset):
     def get_idx_split(self):
         split_dict = torch.load(self.split_file)
         return split_dict
+
+    @property
+    def data(self):
+        return self.processed_file_names
