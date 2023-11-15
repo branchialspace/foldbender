@@ -9,7 +9,6 @@ class Alphafold(Dataset):
     def __init__(self, root: str):
         self.root = '/content/drive/MyDrive/protein-DATA/sample-final'
         self.split_file = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
-        super().__init__(root)
 
     @property
     def processed_file_names(self) -> List[str]:
