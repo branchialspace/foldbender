@@ -24,7 +24,7 @@ class Alphafold(Dataset):
     def get(self, idx):
         data_path = osp.join(self.root, self.processed_file_names[idx])
         data = torch.load(data_path)
-        data.filename = self.processed_file_names[idx]
+        data.filename = osp.splitext(self.processed_file_names[idx])[0]
         return data
 
     def get_idx_split(self):
