@@ -136,9 +136,12 @@ for filename in os.listdir(input_dir):
 
             # Update atom_coords with the aligned coords
             atom_coords = torch.stack(aligned_atom_coords_list)
+
+            # Create the num_nodes attribute
+            num_nodes = feat.shape[0]
     
             # Construct the PyG graph
-            data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, atom_coords=atom_coords)
+            data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, num_nodes=num_nodes, atom_coords=atom_coords)
         
             # Save the PyTorch object to the local file system
             output_filename = f'{data_object_name}.pt'
