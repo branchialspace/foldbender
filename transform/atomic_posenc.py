@@ -1,3 +1,4 @@
+# SOAP 3d-coordinate Positional Encodings
 import torch
 import numpy as np
 import ase
