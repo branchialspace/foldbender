@@ -71,7 +71,6 @@ def compute_posenc_stats(data, is_undirected):
     data.EigVals = EigVals
     data.EigVecs = EigVecs
 
-# The remaining functions (get_lap_decomp_stats and eigvec_normalizer) remain unchanged
 def get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm='L2'):
     """Compute Laplacian eigen-decomposition-based PE stats of the given graph.
 
