@@ -21,11 +21,7 @@ for file_name in os.listdir(input_dir):
     if file_name.endswith('.pt'):
         # Load the data object
         data_path = os.path.join(input_dir, file_name)
-        data_dict = torch.load(data_path)
-
-        # Extract the key that matches the file name without the '.pt' extension
-        data_key = file_name[:-3]
-        data_object = data_dict[data_key]
+        data_object = torch.load(data_path)
 
         # If it's the first file, initialize the global min and max
         if global_x_min is None:
@@ -66,11 +62,7 @@ for file_name in os.listdir(input_dir):
     if file_name.endswith('.pt'):
         # Load the data object
         data_path = os.path.join(input_dir, file_name)
-        data_dict = torch.load(data_path)
-        
-        # Extract the key that matches the file name without the '.pt' extension
-        data_key = file_name[:-3]
-        data_object = data_dict[data_key]
+        data_object = torch.load(data_path)
 
         # Normalize each feature using the global min and max values
         data_object.x = (data_object.x - torch.tensor(global_x_min, dtype=torch.float32)) / \
@@ -85,9 +77,6 @@ for file_name in os.listdir(input_dir):
         data_object.x = torch.round(data_object.x * 10000) / 10000
         data_object.edge_attr = torch.round(data_object.edge_attr * 10000) / 10000
         data_object.atom_coords = torch.round(data_object.atom_coords * 10000) / 10000
-        
-        # Update the dictionary with the scaled and rounded Data object
-        data_dict[data_key] = data_object
 
         # Accumulate min and max values for x and edge_attr
         accumulated_x_mins.append(data_object.x.min(dim=0).values)
@@ -95,9 +84,9 @@ for file_name in os.listdir(input_dir):
         accumulated_edge_attr_mins.append(data_object.edge_attr.min(dim=0).values)
         accumulated_edge_attr_maxs.append(data_object.edge_attr.max(dim=0).values)
         
-        # Save the modified data dictionary
+        # Save the modified data object
         output_path = os.path.join(output_dir, file_name)
-        torch.save(data_dict, output_path)
+        torch.save(data_object, output_path)
 
 # Calculate the global rounded min and max for x and edge_attr features
 global_rounded_x_min = torch.stack(accumulated_x_mins).min(dim=0).values.numpy()
