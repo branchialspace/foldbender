@@ -139,10 +139,7 @@ for filename in os.listdir(input_dir):
     
             # Construct the PyG graph
             data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, atom_coords=atom_coords)
-    
-            # Construct the dictionary and save it using the variable name derived from filename
-            data_dict = {data_object_name: data}
-            output_filename = f'{data_object_name}.pt'
-
+        
             # Save the PyTorch object to the local file system
-            torch.save(data_dict, os.path.join(output_dir, output_filename))
+            output_filename = f'{data_object_name}.pt'
+            torch.save(data, os.path.join(output_dir, output_filename))
