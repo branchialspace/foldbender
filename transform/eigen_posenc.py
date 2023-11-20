@@ -1,4 +1,4 @@
-# 
+# precompute eigenvectors and eigenvalues for graphGPS laplacian positional encodings
 import os
 import torch
 import torch.nn.functional as F
@@ -57,7 +57,9 @@ def compute_posenc_stats(data, is_undirected):
 
     # Get Laplacian in dense format
     edge_index, edge_weight = get_laplacian(undir_edge_index, normalization=laplacian_norm_type, num_nodes=N)
-    L = torch.sparse_coo_tensor(edge_index, edge_weight, (N, N)).to_dense()
+    L = torch.zeros((N, N), dtype=edge_weight.dtype)
+    for i, edge in enumerate(edge_index.t()):
+        L[edge[0], edge[1]] = edge_weight[i]
 
     # Compute eigenvalues and eigenvectors
     evals, evects = torch.linalg.eigh(L)
