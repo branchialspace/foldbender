@@ -51,11 +51,6 @@ def process_file(filename, input_dir, output_dir, encoders):
     with open(filepath, 'rb') as file:
         G = pickle.load(file)
 
-        # Add mirrored edges if they do not exist
-        for node1, node2, data in G.edges(data=True):
-            if not G.has_edge(node2, node1):
-                G.add_edge(node2, node1, **data)
-
         # a dictionary to map node IDs to integers
         node_mapping = defaultdict(int)
 
