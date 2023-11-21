@@ -35,6 +35,27 @@ def bin_asymmetry_data(asymmetry_data):
 
     return binned_data
 
+def analyze_directory(directory, sample_size):
+    files = os.listdir(directory)
+    selected_files = random.sample(files, min(sample_size, len(files)))
+
+    bond_dir_results = []
+    pae_dir_results = []
+    asymmetry_bond = []
+    asymmetry_pae = []
+
+    for file in selected_files:
+        data = torch.load(os.path.join(directory, file))
+        bond_count, bond_asymmetry = check_symmetry(data.edge_index, data.edge_attr, is_bond)
+        pae_count, pae_asymmetry = check_symmetry(data.edge_index, data.edge_attr, is_pae)
+        bond_dir_results.append(bond_count / len(data.edge_attr))
+        pae_dir_results.append(pae_count / len(data.edge_attr))
+        asymmetry_bond.extend(bond_asymmetry)
+        asymmetry_pae.extend(pae_asymmetry)
+
+    return bond_dir_results, pae_dir_results, asymmetry_bond, asymmetry_pae
+
+
 def execute_analysis(directory, sample_size):
     bond_dir_results, pae_dir_results, asymmetry_bond, asymmetry_pae = analyze_directory(directory, sample_size)
 
