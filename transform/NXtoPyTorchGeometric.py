@@ -9,15 +9,16 @@ from torch_geometric.data import Data
 import numpy as np
 import csv
 
-def initialize_encoders():
-    return (
+def process_categories(input_dir, categories_path):
+    # Initialize encoders
+    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = (
         preprocessing.OneHotEncoder(sparse_output=False),
         preprocessing.OneHotEncoder(sparse_output=False),
         preprocessing.OneHotEncoder(sparse_output=False),
         preprocessing.OneHotEncoder(sparse_output=False)
     )
 
-def collect_unique_categories(input_dir, encoders):
+    # Collect unique categories
     unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures = set(), set(), set(), set()
     for filename in os.listdir(input_dir):
         if filename.endswith(".pickle"):
@@ -28,15 +29,19 @@ def collect_unique_categories(input_dir, encoders):
                     unique_atom_types.add(data['atomic_number'])
                     unique_residue_names.add(data['residue_name'])
                     unique_secondary_structures.add(data['secondary_structure'])
-    for ohe, unique_values in zip(encoders, [unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures]):
+    
+    for ohe, unique_values in zip([ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures],
+                                  [unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures]):
         ohe.fit(np.array(list(unique_values)).reshape(-1, 1))
-    return unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures
 
-def write_categories_to_file(categories_path, categories):
+    # Write categories to file
     with open(categories_path, 'w', newline='') as csvfile:
         category_writer = csv.writer(csvfile)
-        for category_name, unique_values in zip(['atom_name', 'atom_type', 'residue_name', 'secondary_structure'], categories):
+        for category_name, unique_values in zip(['atom_name', 'atom_type', 'residue_name', 'secondary_structure'], 
+                                                [unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures]):
             category_writer.writerow([category_name] + list(unique_values))
+
+    return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
 def process_file(filename, input_dir, output_dir, encoders):
     data_object_name = filename.replace('.pickle', '')
@@ -130,9 +135,7 @@ def process_file(filename, input_dir, output_dir, encoders):
         torch.save(data, os.path.join(output_dir, output_filename))
 
 def execute_nx_pyg(input_dir, output_dir, categories_path):
-    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = initialize_encoders()
-    unique_categories = collect_unique_categories(input_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
-    write_categories_to_file(categories_path, unique_categories)
+    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
     for filename in os.listdir(input_dir):
         if filename.endswith(".pickle"):
