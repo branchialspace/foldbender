@@ -49,8 +49,8 @@ def execute_analysis(directory, sample_size):
         "Binned PAE Asymmetry Distribution": binned_pae_asymmetry
     }
 
-directory = 'path/to/your/directory'
-sample_size = 10  # Adjust this as needed
+directory = '/content/drive/MyDrive/protein-DATA/sample-final'
+sample_size = 10
 
 results = execute_analysis(directory, sample_size)
 
