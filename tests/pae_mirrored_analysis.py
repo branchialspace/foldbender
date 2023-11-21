@@ -27,13 +27,25 @@ def check_symmetry(edge_index, edge_attr, edge_filter):
 
 def bin_asymmetry_data(asymmetry_data):
     if not asymmetry_data:
-        return []
+        return [0, 0, 0, 0]  # Return zeros if there are no asymmetric data
 
-    values = torch.cat(asymmetry_data, dim=0).numpy()
-    quantiles = np.percentile(values, [25, 50, 75, 100])
-    binned_data = np.digitize(values, quantiles)
+    # Calculate percentage differences
+    percentage_diffs = [torch.abs((attr1 - attr2) / torch.max(attr1, attr2)) for attr1, attr2 in asymmetry_data]
 
-    return binned_data
+    # Convert list of tensors to numpy array
+    percentage_diffs = torch.stack(percentage_diffs).numpy()
+
+    # Define bins for the quartiles
+    bins = [0.25, 0.5, 0.75, 1.0]
+
+    # Digitize the percentage differences into bins
+    binned_data = np.digitize(percentage_diffs, bins, right=False)
+
+    # Calculate the percentage of total for each bin
+    bin_counts = np.bincount(binned_data, minlength=4)
+    percentages = (bin_counts / bin_counts.sum()) * 100  # Convert to percentages
+
+    return percentages.tolist()
 
 def analyze_directory(directory, sample_size):
     files = os.listdir(directory)
