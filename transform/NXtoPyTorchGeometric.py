@@ -43,7 +43,7 @@ def process_categories(input_dir, categories_path):
 
     return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
-def process_file(filename, input_dir, output_dir, encoders):
+def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
     data_object_name = filename.replace('.pickle', '')
     filepath = os.path.join(input_dir, filename)
 
@@ -94,16 +94,22 @@ def process_file(filename, input_dir, output_dir, encoders):
                 ], dim=0))
 
 
-        for node1, node2, data in G.edges(data=True):
-            # edge feature includes bond_idx, bond_order, bond_length and pae
-            if 'pae' in data:
-                edge_feat.append([0, 0, 0, data.get('pae')])
-            else:
-                edge_feat.append([
+       for node1, node2, data in G.edges(data=True):
+            # Edge feature construction
+            if include_pae and 'pae' in data:
+                edge_features = [
                     data.get('bond_idx', 0),
                     data.get('bond_order', 0),
                     data.get('bond_length', 0),
-                    0])  # 0 for PAE in bond edges
+                    data.get('pae', 0)
+                ]
+            else:
+                edge_features = [
+                    data.get('bond_idx', 0),
+                    data.get('bond_order', 0),
+                    data.get('bond_length', 0)
+                ]
+            edge_feat.append(edge_features)
             edge_index.append((node_mapping[node1], node_mapping[node2]))
 
         # Convert lists to tensors
@@ -134,7 +140,7 @@ def execute_nx_pyg(input_dir, output_dir, categories_path):
 
     for filename in os.listdir(input_dir):
         if filename.endswith(".pickle"):
-            process_file(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
+            process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
 
 input_directory = '/proteins_sample/'
 output_directory = '/content/drive/MyDrive/protein-DATA/prot-sample/'
