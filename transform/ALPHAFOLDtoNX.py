@@ -6,10 +6,6 @@ import networkx as nx
 from rdkit import Chem
 from Bio.PDB import PDBParser, DSSP
 
-input_directory = 'path/to/input_directory'
-output_directory = 'path/to/output_directory'
-last_mol_path = 'path/to/last_processed.txt'
-
 def protein_molecule_graphs(file_name):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
     json_file_path = os.path.join(input_directory, file_name + '.json')
