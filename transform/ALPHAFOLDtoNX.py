@@ -10,7 +10,7 @@ def protein_molecule_graphs(file_name, include_pae=False):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
     json_file_path = os.path.join(input_directory, file_name + '.json')
 
-    output_file_name = file_name.split("/")[-1] + '.pickle'
+    output_file_name = file_name.split("/")[-1] + '.pkl'
     output_file_path = os.path.join(output_directory, output_file_name)
 
     # Check if the pickle file already exists in the output directory
