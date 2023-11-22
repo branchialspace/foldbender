@@ -1,4 +1,4 @@
-# GO Labels
+# Gene Ontology Function Annotation Labels
 import torch
 import pandas as pd
 import os
