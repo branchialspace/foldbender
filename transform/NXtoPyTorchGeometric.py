@@ -95,6 +95,10 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
 
 
        for node1, node2, data in G.edges(data=True):
+            # Skip edges with 'pae' attribute if include_pae is False
+            if not include_pae and 'pae' in data:
+                continue
+                
             # Edge feature construction
             if include_pae and 'pae' in data:
                 edge_features = [
