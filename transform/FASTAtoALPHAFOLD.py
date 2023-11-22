@@ -5,15 +5,12 @@ import requests
 import time
 import json
 
-def retrieve_files(input_fasta, base_directory, last_downloaded_file, include_pae, delay=0.1, max_retries=5):
-    found_last_downloaded = False
+def retrieve_files(input_fasta, base_directory, existing_files, include_pae, delay=0.1, max_retries=5):
     for record in SeqIO.parse(input_fasta, 'fasta'):
         uniprot_id = record.id
 
-        # If this is where we left off last time, start processing
-        if last_downloaded_file is not None and uniprot_id == last_downloaded_file:
-            found_last_downloaded = True
-        elif last_downloaded_file is not None and not found_last_downloaded:
+        # Skip if already processed
+        if uniprot_id in existing_files:
             continue
 
         pdb_file_name = f'{uniprot_id}.pdb'
@@ -30,13 +27,14 @@ def retrieve_files(input_fasta, base_directory, last_downloaded_file, include_pa
         pdb_exists = requests.head(pdb_url).status_code == 200
         pae_exists = requests.head(pae_url).status_code == 200
 
-            # Only retrieve the file if it exists
-            if pdb_exists:
-                retrieve_file(pdb_url, pdb_file_path, 'PDB', delay, max_retries, uniprot_id, base_directory)
-            if include_pae and pae_exists:
-                retrieve_file(pae_url, pae_file_path, 'JSON', delay, max_retries, uniprot_id, base_directory)
+        if pdb_exists:
+            retrieve_file(pdb_url, pdb_file_path, 'PDB', delay, max_retries)
+        if include_pae and pae_exists:
+            retrieve_file(pae_url, pae_file_path, 'JSON', delay, max_retries)
 
-def retrieve_file(url, file_path, file_type, delay, max_retries, uniprot_id, base_directory):
+        existing_files.add(uniprot_id)
+
+def retrieve_file(url, file_path, file_type, delay, max_retries):
     if os.path.exists(file_path):
         print(f'{file_type} file {file_path} already exists. Skipping this entry.')
         return
@@ -50,9 +48,6 @@ def retrieve_file(url, file_path, file_type, delay, max_retries, uniprot_id, bas
                     file.write(response.text)
                 elif file_type == 'JSON':
                     json.dump(response.json(), file)
-            # Record the successfully downloaded file
-            with open(os.path.join(base_directory, 'last_downloaded.txt'), 'w') as f:
-                f.write(uniprot_id)
             break
         elif response.status_code == 429:
             wait_time = (2 ** retries) * delay
@@ -64,21 +59,14 @@ def retrieve_file(url, file_path, file_type, delay, max_retries, uniprot_id, bas
             break
     time.sleep(delay)
 
-def get_last_downloaded_file(base_directory):
-    last_downloaded_file_path = os.path.join(base_directory, 'last_downloaded.txt')
-    if os.path.exists(last_downloaded_file_path):
-        with open(last_downloaded_file_path, 'r') as f:
-            return f.read().strip()
-    return None
-
 def fasta_to_alphafold(input_fasta, base_directory, max_retries=10, include_pae=False):
-    last_downloaded_file = get_last_downloaded_file(base_directory)
+    existing_files = {f.split('.')[0] for f in os.listdir(base_directory) if f.endswith('.pdb') or f.endswith('.json')}
     retries = 0
     success = False
 
     while not success and retries < max_retries:
         try:
-            retrieve_files(input_fasta, base_directory, last_downloaded_file)
+            retrieve_files(input_fasta, base_directory, existing_files, include_pae)
             success = True
         except Exception as e:
             retries += 1
@@ -90,6 +78,6 @@ def fasta_to_alphafold(input_fasta, base_directory, max_retries=10, include_pae=
     else:
         print("Operation succeeded.")
 
-input_fasta = TRAIN_SEQUENCES
-base_directory = INPUT_DATA
+input_fasta = 'path/to/training_sequences.fasta'
+base_directory = 'path/to/input_data'
 fasta_to_alphafold(input_fasta, base_directory)
