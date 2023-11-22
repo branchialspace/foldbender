@@ -6,7 +6,7 @@ import networkx as nx
 from rdkit import Chem
 from Bio.PDB import PDBParser, DSSP
 
-def protein_molecule_graphs(file_name):
+def protein_molecule_graphs(file_name, include_pae=False):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
     json_file_path = os.path.join(input_directory, file_name + '.json')
 
@@ -87,38 +87,36 @@ def protein_molecule_graphs(file_name):
         plddt = plddt_dict.get(residue_number)
         G.nodes[atom.GetIdx()]['plddt'] = plddt
 
-    # Parse JSON file, Add PAE as Edges
-    try:
-        with open(json_file_path, 'r') as f:
-            pae_data = json.load(f)
+    # Parse JSON file, Add PAE as Edges only if include_pae is True
+    if include_pae:
+        try:
+            with open(json_file_path, 'r') as f:
+                pae_data = json.load(f)
 
-        # Check if 'predicted_aligned_error' is present in the data
-        if not 'predicted_aligned_error' in pae_data[0]:
-            raise ValueError('No predicted_aligned_error in JSON')
+            if not 'predicted_aligned_error' in pae_data[0]:
+                raise ValueError('No predicted_aligned_error in JSON')
 
-        pae_matrix = pae_data[0]['predicted_aligned_error']
+            pae_matrix = pae_data[0]['predicted_aligned_error']
 
-        for i in range(len(pae_matrix)):
-            for j in range(len(pae_matrix[i])):
-                if i != j:  # Skip self-loops
-                    pae = pae_matrix[i][j]
+            for i in range(len(pae_matrix)):
+                for j in range(len(pae_matrix[i])):
+                    if i != j:  # Skip self-loops
+                        pae = pae_matrix[i][j]
+                        ca_atom_i = residue_to_ca_atom.get(i + 1)
+                        ca_atom_j = residue_to_ca_atom.get(j + 1)
 
-                    # Get the central atoms of the residues directly from the mapping
-                    ca_atom_i = residue_to_ca_atom.get(i + 1)
-                    ca_atom_j = residue_to_ca_atom.get(j + 1)
+                        if ca_atom_i is not None and ca_atom_j is not None:
+                            G.add_edge(ca_atom_i, ca_atom_j, pae=pae)
 
-                    # Add an Edge between the central atoms with the PAE as an attribute
-                    G.add_edge(ca_atom_i, ca_atom_j, pae=pae)
-
-    except json.JSONDecodeError:
-        print(f"Cannot decode JSON from file {file_name}. Please check the JSON file.")
-        return
-    except ValueError as ve:
-        print(f"Value error in file {file_name}: {str(ve)}")
-        return
-    except Exception as e:
-        print(f"Unexpected error in file {file_name}: {str(e)}")
-        return
+        except json.JSONDecodeError:
+            print(f"Cannot decode JSON from file {file_name}. Please check the JSON file.")
+            return
+        except ValueError as ve:
+            print(f"Value error in file {file_name}: {str(ve)}")
+            return
+        except Exception as e:
+            print(f"Unexpected error in file {file_name}: {str(e)}")
+            return
 
     # Identify DSSP Secondary Structures, Solvent Available Surface Area, Torsion Angles, Hygrogen Bond Strengths. Map the DSSP data to residue identifiers as Node Attributes
     def run_dssp(pdb_file):
@@ -179,7 +177,7 @@ def set_last_processed_file_name(file_name):
     with open(last_mol_path, "w") as file:
         file.write(file_name)
 
-def process_all_proteins(input_directory, output_directory, last_mol_path):
+def process_all_proteins(input_directory, output_directory, last_mol_path, include_pae=False):
     last_processed_file_name = get_last_processed_file_name(last_mol_path)
     resume_processing = False if last_processed_file_name is None else True
 
@@ -192,7 +190,7 @@ def process_all_proteins(input_directory, output_directory, last_mol_path):
                     resume_processing = False
                 continue
 
-            protein_molecule_graphs(input_directory, output_directory, file_name_without_extension)
+            protein_molecule_graphs(input_directory, output_directory, file_name_without_extension, include_pae)
             set_last_processed_file_name(last_mol_path, file_name_without_extension)
 
 input_directory = 'path/to/input_directory'
