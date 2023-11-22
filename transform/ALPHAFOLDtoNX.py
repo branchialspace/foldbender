@@ -25,8 +25,8 @@ def protein_molecule_graphs(file_name, include_pae=False):
     # Get Conformer for 3D coordinates
     conf = mol.GetConformer()
 
-    # Create a NetworkX directed graph
-    G = nx.DiGraph()
+    # Create a NetworkX undirected graph
+    G = nx.Graph()
 
     # Parse the PDB file
     pdb_parser = PDBParser()
