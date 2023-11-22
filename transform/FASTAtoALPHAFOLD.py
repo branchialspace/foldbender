@@ -5,9 +5,6 @@ import requests
 import time
 import json
 
-input_fasta = TRAIN_SEQUENCES
-base_directory = INPUT_DATA
-
 def retrieve_files(input_fasta, base_directory, last_downloaded_file, delay=0.1, max_retries=5):
     found_last_downloaded = False
     for record in SeqIO.parse(input_fasta, 'fasta'):
@@ -73,25 +70,32 @@ def retrieve_file(url, file_path, file_type, delay, max_retries, uniprot_id, bas
             break
     time.sleep(delay)
 
-last_downloaded_file = None
-if os.path.exists(os.path.join(base_directory, 'last_downloaded.txt')):
-    with open(os.path.join(base_directory, 'last_downloaded.txt'), 'r') as f:
-        last_downloaded_file = f.read().strip()
+def get_last_downloaded_file(base_directory):
+    last_downloaded_file_path = os.path.join(base_directory, 'last_downloaded.txt')
+    if os.path.exists(last_downloaded_file_path):
+        with open(last_downloaded_file_path, 'r') as f:
+            return f.read().strip()
+    return None
 
-max_retries = 10
-retries = 0
-success = False
+def fasta_to_alphafold(input_fasta, base_directory, max_retries=10):
+    last_downloaded_file = get_last_downloaded_file(base_directory)
+    retries = 0
+    success = False
 
-while not success and retries < max_retries:
-    try:
-        retrieve_files(input_fasta, base_directory, last_downloaded_file)
-        success = True
-    except Exception as e:
-        retries += 1
-        print(f'Attempt {retries} failed with error {str(e)}. Retrying in {2} seconds...')
-        time.sleep(2)
+    while not success and retries < max_retries:
+        try:
+            retrieve_files(input_fasta, base_directory, last_downloaded_file)
+            success = True
+        except Exception as e:
+            retries += 1
+            print(f'Attempt {retries} failed with error {str(e)}. Retrying in {2} seconds...')
+            time.sleep(2)
 
-if not success:
-    print("Operation failed after maximum retries. Please check the error.")
-else:
-    print("Operation succeeded.")
+    if not success:
+        print("Operation failed after maximum retries. Please check the error.")
+    else:
+        print("Operation succeeded.")
+
+input_fasta = TRAIN_SEQUENCES
+base_directory = INPUT_DATA
+fasta_to_alphafold(input_fasta, base_directory)
