@@ -19,9 +19,8 @@ def retrieve_files(input_fasta, base_directory, last_downloaded_file, delay=0.1,
         pdb_file_name = f'{uniprot_id}.pdb'
         pae_file_name = f'{uniprot_id}.json'
 
-        uniprot_directory = os.path.join(base_directory, uniprot_id)
-        pdb_file_path = os.path.join(uniprot_directory, pdb_file_name)
-        pae_file_path = os.path.join(uniprot_directory, pae_file_name)
+        pdb_file_path = os.path.join(base_directory, pdb_file_name)
+        pae_file_path = os.path.join(base_directory, pae_file_name)
 
         # Retrieve PDB, JSON file
         pdb_url = f'https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v4.pdb'
