@@ -1,57 +1,40 @@
 # Alphafold + RDKit + DSSP > NetworkX Graph Representation of Proteins
-# Currently operates on GCS
 import os
-import io
 import pickle
-import tempfile
 import json
 import networkx as nx
 from rdkit import Chem
-from rdkit.Chem import AllChem
-from rdkit.Chem import rdMolTransforms
 from Bio.PDB import PDBParser, DSSP
 
-def protein_molecule_graphs(blob_name):
-    input_bucket = storage_client.get_bucket(INPUT_BUCKET)
-    output_bucket = storage_client.get_bucket(OUTPUT_BUCKET)
+INPUT_DIR = 'path/to/input_directory'
+OUTPUT_DIR = 'path/to/output_directory'
+LAST_BLOB_FILE = 'path/to/last_processed.txt'
 
-    # Check if the pickle file already exists in the output bucket
-    output_blob_name = blob_name.split("\\")[-2] + '.pickle'
-    if storage.Blob(bucket=output_bucket, name=output_blob_name).exists(storage_client):
-        print(f"{output_blob_name} already exists in the output bucket.")
+def protein_molecule_graphs(file_name):
+    pdb_file_path = os.path.join(INPUT_DIR, file_name + '.pdb')
+    json_file_path = os.path.join(INPUT_DIR, file_name + '.json')
+
+    output_file_name = file_name.split("/")[-1] + '.pickle'
+    output_file_path = os.path.join(OUTPUT_DIR, output_file_name)
+
+    # Check if the pickle file already exists in the output directory
+    if os.path.exists(output_file_path):
+        print(f"{output_file_name} already exists in the output directory.")
         return
 
-    pdb_blob = input_bucket.blob(blob_name + '.pdb')
-    json_blob = input_bucket.blob(blob_name + '.json')
-
-    pdb_text = pdb_blob.download_as_text()
-    json_text = json_blob.download_as_text()
-
-    with tempfile.NamedTemporaryFile(suffix=".pdb", delete=False) as temp_pdb:
-        temp_pdb.write(pdb_text.encode())
-        temp_pdb.flush()
-        temp_pdb.close()
-    pdb_file = temp_pdb.name
-
-    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as temp_json:
-        temp_json.write(json_text.encode())
-        temp_json.flush()
-        temp_json.close()
-    json_file = temp_json.name
-
     # Create RDKit molecule from PDB file
-    mol = Chem.MolFromPDBFile(pdb_file, sanitize=False, removeHs=False)
+    mol = Chem.MolFromPDBFile(pdb_file_path, sanitize=False, removeHs=False)
     mol.UpdatePropertyCache(strict=False)
 
     # Get Conformer for 3D coordinates
     conf = mol.GetConformer()
 
-   # Create a NetworkX directed graph
+    # Create a NetworkX directed graph
     G = nx.DiGraph()
 
     # Parse the PDB file
-    pdb_parser = PDBParser(QUIET=True)
-    structure = pdb_parser.get_structure('protein', pdb_file)
+    pdb_parser = PDBParser()
+    structure = pdb_parser.get_structure('protein', pdb_file_path)
 
     # Create a dictionary mapping each RDKit atom index to its full atom name
     serial_atom_dict = {}
@@ -93,11 +76,6 @@ def protein_molecule_graphs(blob_name):
         G.add_edge(atom_i, atom_j, bond_idx=bond_idx, bond_order=bond_order, bond_length=bond_length)
 
     # Identify pLDDT as Node Attributes and PAE as Edges
-
-    # Parse the PDB file
-    pdb_parser = PDBParser()
-    structure = pdb_parser.get_structure('protein', pdb_file)
-
     # Create a dictionary mapping each residue to its pLDDT value
     plddt_dict = {}
     for model in structure:
@@ -115,7 +93,7 @@ def protein_molecule_graphs(blob_name):
 
     # Parse JSON file, Add PAE as Edges
     try:
-        with open(json_file, 'r') as f:
+        with open(json_file_path, 'r') as f:
             pae_data = json.load(f)
 
         # Check if 'predicted_aligned_error' is present in the data
@@ -137,13 +115,13 @@ def protein_molecule_graphs(blob_name):
                     G.add_edge(ca_atom_i, ca_atom_j, pae=pae)
 
     except json.JSONDecodeError:
-        print(f"Cannot decode JSON from blob {blob_name}. Please check the JSON file.")
+        print(f"Cannot decode JSON from file {file_name}. Please check the JSON file.")
         return
     except ValueError as ve:
-        print(f"Value error in blob {blob_name}: {str(ve)}")
+        print(f"Value error in file {file_name}: {str(ve)}")
         return
     except Exception as e:
-        print(f"Unexpected error in blob {blob_name}: {str(e)}")
+        print(f"Unexpected error in file {file_name}: {str(e)}")
         return
 
     # Identify DSSP Secondary Structures, Solvent Available Surface Area, Torsion Angles, Hygrogen Bond Strengths. Map the DSSP data to residue identifiers as Node Attributes
@@ -160,7 +138,7 @@ def protein_molecule_graphs(blob_name):
 
         return dssp_dict
 
-    dssp_data = run_dssp(pdb_file)
+    dssp_data = run_dssp(pdb_file_path)
 
     for node, data in G.nodes(data=True):
         if data['residue_number'] in dssp_data:
@@ -191,42 +169,36 @@ def protein_molecule_graphs(blob_name):
         data['atom_coords'] = atom_coords_str
 
     # Save graph to pickle file
-    with tempfile.NamedTemporaryFile(suffix=".pickle", delete=False) as temp_pickle:
-        pickle.dump(G, temp_pickle)
-        temp_pickle.close()
+    with open(output_file_path, 'wb') as f:
+        pickle.dump(G, f)
 
-    # Upload the pickle file to the bucket
-    pickle_blob = output_bucket.blob(output_blob_name)
-    pickle_blob.upload_from_filename(temp_pickle.name)
-    os.remove(temp_pickle.name)
-
-def get_last_processed_blob_name():
+def get_last_processed_file_name():
     try:
-        with open(LAST_BLOB, "r") as file:
+        with open(LAST_BLOB_FILE, "r") as file:
             return file.read().strip()
     except FileNotFoundError:
         return None
 
-def set_last_processed_blob_name(blob_name):
-    with open(LAST_BLOB, "w") as file:
-        file.write(blob_name)
+def set_last_processed_file_name(file_name):
+    with open(LAST_BLOB_FILE, "w") as file:
+        file.write(file_name)
 
-# Iterate over all PDB files in the Input Bucket
-input_bucket = storage_client.get_bucket(INPUT_BUCKET)
-last_processed_blob_name = get_last_processed_blob_name()
-resume_processing = False if last_processed_blob_name is None else True
+# Iterate over all PDB files in the Input Directory
+last_processed_file_name = get_last_processed_file_name()
+resume_processing = False if last_processed_file_name is None else True
 
-for blob in input_bucket.list_blobs():
-    if blob.name.endswith(".pdb"):
-        # Skip blobs until we reach the last processed blob
+for file in os.listdir(INPUT_DIR):
+    if file.endswith(".pdb"):
+        file_name_without_extension = os.path.splitext(file)[0]
+
+        # Skip files until we reach the last processed file
         if resume_processing:
-            if blob.name[:-4] == last_processed_blob_name:
-                # We found the last processed blob, resume from the next blob
+            if file_name_without_extension == last_processed_file_name:
                 resume_processing = False
             continue
 
-        # Process this blob
-        protein_molecule_graphs(blob.name[:-4])
+        # Process this file
+        protein_molecule_graphs(file_name_without_extension)
 
-        # Update the last processed blob
-        set_last_processed_blob_name(blob.name[:-4])
+        # Update the last processed file
+        set_last_processed_file_name(file_name_without_extension)
