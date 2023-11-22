@@ -166,35 +166,34 @@ def protein_molecule_graphs(file_name, include_pae=False):
     with open(output_file_path, 'wb') as f:
         pickle.dump(G, f)
 
-def get_last_processed_file_name():
+def get_processed_files_list(processed_mols_path):
     try:
-        with open(last_mol_path, "r") as file:
-            return file.read().strip()
+        with open(processed_mols_path, "r") as file:
+            return file.read().splitlines()
     except FileNotFoundError:
-        return None
+        return []
 
-def set_last_processed_file_name(file_name):
-    with open(last_mol_path, "w") as file:
-        file.write(file_name)
-
-def process_all_proteins(input_directory, output_directory, last_mol_path, include_pae=False):
-    last_processed_file_name = get_last_processed_file_name(last_mol_path)
-    resume_processing = False if last_processed_file_name is None else True
+def process_all_proteins(input_directory, output_directory, processed_mols_path, include_pae=False):
+    processed_files = get_processed_files_list(processed_mols_path)
 
     for file in os.listdir(input_directory):
         if file.endswith(".pdb"):
             file_name_without_extension = os.path.splitext(file)[0]
+            output_file_name = file_name_without_extension + '.pickle'
+            output_file_path = os.path.join(output_directory, output_file_name)
 
-            if resume_processing:
-                if file_name_without_extension == last_processed_file_name:
-                    resume_processing = False
+            if output_file_name in processed_files:
                 continue
 
             protein_molecule_graphs(input_directory, output_directory, file_name_without_extension, include_pae)
-            set_last_processed_file_name(last_mol_path, file_name_without_extension)
+
+            # Add the processed file to the list and update the file
+            processed_files.append(output_file_name)
+            with open(processed_mols_path, "w") as f:
+                f.write("\n".join(processed_files))
 
 input_directory = 'path/to/input_directory'
 output_directory = 'path/to/output_directory'
-last_mol_path = 'path/to/last_processed.txt'
+processed_mols_path = 'path/to/processed_mols.txt'
 
-process_all_proteins(input_directory, output_directory, last_mol_path)
+process_all_proteins(input_directory, output_directory, processed_mols_path)
