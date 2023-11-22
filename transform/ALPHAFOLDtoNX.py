@@ -6,6 +6,10 @@ import networkx as nx
 from rdkit import Chem
 from Bio.PDB import PDBParser, DSSP
 
+input_directory = 'path/to/input_directory'
+output_directory = 'path/to/output_directory'
+last_mol_path = 'path/to/last_processed.txt'
+
 def protein_molecule_graphs(file_name):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
     json_file_path = os.path.join(input_directory, file_name + '.json')
@@ -170,17 +174,17 @@ def protein_molecule_graphs(file_name):
 
 def get_last_processed_file_name():
     try:
-        with open(last_blob_file_path, "r") as file:
+        with open(last_mol_path, "r") as file:
             return file.read().strip()
     except FileNotFoundError:
         return None
 
 def set_last_processed_file_name(file_name):
-    with open(last_blob_file_path, "w") as file:
+    with open(last_mol_path, "w") as file:
         file.write(file_name)
 
-def process_all_proteins(input_directory, output_directory, last_blob_file_path):
-    last_processed_file_name = get_last_processed_file_name(last_blob_file_path)
+def process_all_proteins(input_directory, output_directory, last_mol_path):
+    last_processed_file_name = get_last_processed_file_name(last_mol_path)
     resume_processing = False if last_processed_file_name is None else True
 
     for file in os.listdir(input_directory):
@@ -193,10 +197,10 @@ def process_all_proteins(input_directory, output_directory, last_blob_file_path)
                 continue
 
             protein_molecule_graphs(input_directory, output_directory, file_name_without_extension)
-            set_last_processed_file_name(last_blob_file_path, file_name_without_extension)
-            
-input_directoryectory = 'path/to/input_directoryectory'
-output_directoryectory = 'path/to/output_directoryectory'
-last_blob_file_path_path = 'path/to/last_processed.txt'
+            set_last_processed_file_name(last_mol_path, file_name_without_extension)
 
-process_all_proteins(input_directoryectory, output_directoryectory, last_blob_file_path_path)
+input_directory = 'path/to/input_directory'
+output_directory = 'path/to/output_directory'
+last_mol_path = 'path/to/last_processed.txt'
+
+process_all_proteins(input_directory, output_directory, last_mol_path)
