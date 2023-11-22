@@ -5,7 +5,7 @@ import requests
 import time
 import json
 
-def retrieve_files(input_fasta, base_directory, last_downloaded_file, delay=0.1, max_retries=5):
+def retrieve_files(input_fasta, base_directory, last_downloaded_file, include_pae, delay=0.1, max_retries=5):
     found_last_downloaded = False
     for record in SeqIO.parse(input_fasta, 'fasta'):
         uniprot_id = record.id
@@ -30,15 +30,10 @@ def retrieve_files(input_fasta, base_directory, last_downloaded_file, delay=0.1,
         pdb_exists = requests.head(pdb_url).status_code == 200
         pae_exists = requests.head(pae_url).status_code == 200
 
-        # Only create the directory if one of the files exists
-        if pdb_exists or pae_exists:
-            if not os.path.exists(uniprot_directory):
-                os.makedirs(uniprot_directory)
-
             # Only retrieve the file if it exists
             if pdb_exists:
                 retrieve_file(pdb_url, pdb_file_path, 'PDB', delay, max_retries, uniprot_id, base_directory)
-            if pae_exists:
+            if include_pae and pae_exists:
                 retrieve_file(pae_url, pae_file_path, 'JSON', delay, max_retries, uniprot_id, base_directory)
 
 def retrieve_file(url, file_path, file_type, delay, max_retries, uniprot_id, base_directory):
@@ -76,7 +71,7 @@ def get_last_downloaded_file(base_directory):
             return f.read().strip()
     return None
 
-def fasta_to_alphafold(input_fasta, base_directory, max_retries=10):
+def fasta_to_alphafold(input_fasta, base_directory, max_retries=10, include_pae=False):
     last_downloaded_file = get_last_downloaded_file(base_directory)
     retries = 0
     success = False
