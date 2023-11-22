@@ -166,34 +166,24 @@ def protein_molecule_graphs(file_name, include_pae=False):
     with open(output_file_path, 'wb') as f:
         pickle.dump(G, f)
 
-def get_processed_files_list(processed_mols_path):
-    try:
-        with open(processed_mols_path, "r") as file:
-            return file.read().splitlines()
-    except FileNotFoundError:
-        return []
-
-def process_all_proteins(input_directory, output_directory, processed_mols_path, include_pae=False):
-    processed_files = get_processed_files_list(processed_mols_path)
-
+def process_all_proteins(input_directory, output_directory, include_pae=False):
+    processed_files = [f for f in os.listdir(output_directory) if f.endswith('.pkl')]
     for file in os.listdir(input_directory):
         if file.endswith(".pdb"):
             file_name_without_extension = os.path.splitext(file)[0]
-            output_file_name = file_name_without_extension + '.pickle'
+            output_file_name = file_name_without_extension + '.pkl'
             output_file_path = os.path.join(output_directory, output_file_name)
 
             if output_file_name in processed_files:
                 continue
 
+            # Process the protein molecule graphs (assuming this function is defined elsewhere)
             protein_molecule_graphs(input_directory, output_directory, file_name_without_extension, include_pae)
 
-            # Add the processed file to the list and update the file
+            # Add the processed file to the list
             processed_files.append(output_file_name)
-            with open(processed_mols_path, "w") as f:
-                f.write("\n".join(processed_files))
 
 input_directory = 'path/to/input_directory'
 output_directory = 'path/to/output_directory'
-processed_mols_path = 'path/to/processed_mols.txt'
 
-process_all_proteins(input_directory, output_directory, processed_mols_path)
+process_all_proteins(input_directory, output_directory)
