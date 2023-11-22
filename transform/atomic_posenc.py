@@ -7,9 +7,6 @@ from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
 
-input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
-output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
-
 def soap_local(input_directory, output_directory):
     # Create the output directory if it does not exist
     if not os.path.exists(output_directory):
@@ -51,5 +48,7 @@ def soap_local(input_directory, output_directory):
 
     print(f"All local SOAP descriptors calculated, appended to 'x' and saved to {output_directory}.")
 
-# Call the function with the input and output directories
+input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
+output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
+
 soap_local(input_directory, output_directory)
