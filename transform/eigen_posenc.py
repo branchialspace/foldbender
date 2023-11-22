@@ -4,9 +4,6 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.utils import to_undirected, get_laplacian
 
-input_dir = /content/drive/MyDrive/protein-DATA/sample-final
-output_dir = /content/drive/MyDrive/protein-DATA/sample_final_eigens
-
 def precompute_eigens(input_dir, output_dir, sample_size=10):
     """Process each .pt PyG Data object in the input directory and save to the output directory.
 
@@ -123,5 +120,8 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
     EigVecs = EigVecs / denom
 
     return EigVecs
+
+input_dir = "/content/drive/MyDrive/protein-DATA/sample-final"
+output_dir = "/content/drive/MyDrive/protein-DATA/sample_final_eigens"
 
 precompute_eigens(input_dir, output_dir)
