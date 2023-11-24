@@ -59,7 +59,7 @@ def retrieve_file(url, file_path, file_type, delay, max_retries):
             break
     time.sleep(delay)
 
-def fasta_to_alphafold(input_fasta, base_directory, max_retries=10, include_pae=False):
+def fasta_alpha(input_fasta, base_directory, max_retries=10, include_pae=False):
     existing_files = {f.split('.')[0] for f in os.listdir(base_directory) if f.endswith('.pdb') or f.endswith('.json')}
     retries = 0
     success = False
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     input_fasta = 'path/to/training_sequences.fasta'
     base_directory = 'path/to/input_data'
     
-    fasta_to_alphafold(input_fasta, base_directory)
+    fasta_alpha(input_fasta, base_directory)
