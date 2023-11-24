@@ -5,6 +5,7 @@ import os
 from torch_geometric.data import Data
 
 def go_labels(input_directory, output_directory, train_terms):
+    os.makedirs(output_directory, exist_ok=True)
     # Load the train_terms.tsv file and parse it
     df = pd.read_csv(train_terms, sep='\t')
     df.sort_values(by='term', inplace=True)
