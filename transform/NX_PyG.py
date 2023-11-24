@@ -145,8 +145,10 @@ def execute_nx_pyg(input_dir, output_dir, categories_path):
         if filename.endswith(".pickle"):
             process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
 
-input_directory = '/proteins_sample/'
-output_directory = '/content/drive/MyDrive/protein-DATA/prot-sample/'
-categories_file_path = '/content/drive/MyDrive/protein-DATA/ohe-categories.csv'
+if __name__ == "__main__":
 
-execute_nx_pyg(input_directory, output_directory, categories_file_path)
+    input_directory = '/proteins_sample/'
+    output_directory = '/content/drive/MyDrive/protein-DATA/prot-sample/'
+    categories_file_path = '/content/drive/MyDrive/protein-DATA/ohe-categories.csv'
+    
+    execute_nx_pyg(input_directory, output_directory, categories_file_path)
