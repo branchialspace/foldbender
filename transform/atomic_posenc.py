@@ -48,7 +48,9 @@ def soap_local(input_directory, output_directory):
 
     print(f"All local SOAP descriptors calculated, appended to 'x' and saved to {output_directory}.")
 
-input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
-output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
+if __name__ == "__main__":
 
-soap_local(input_directory, output_directory)
+    input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
+    output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
+    
+    soap_local(input_directory, output_directory)
