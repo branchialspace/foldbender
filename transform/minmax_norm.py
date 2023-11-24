@@ -79,9 +79,11 @@ def minmax_norm(input_dir, output_dir, stats, norm_stats):
     })
     norm_rounded_stats_df.to_csv(norm_stats, index=False)
 
-input_dir = '/content/drive/MyDrive/protein-DATA/prot-sample'
-output_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
-stats = '/content/drive/MyDrive/protein-DATA/minmax-stats.csv'
-norm_stats = '/content/drive/MyDrive/protein-DATA/norm-stats.csv'
+if __name__ == "__main__":
 
-minmax_norm(input_dir, output_dir, stats, norm_stats)
+    input_dir = '/content/drive/MyDrive/protein-DATA/prot-sample'
+    output_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
+    stats = '/content/drive/MyDrive/protein-DATA/minmax-stats.csv'
+    norm_stats = '/content/drive/MyDrive/protein-DATA/norm-stats.csv'
+    
+    minmax_norm(input_dir, output_dir, stats, norm_stats)
