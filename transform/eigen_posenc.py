@@ -2,7 +2,7 @@
 import os
 import torch
 import torch.nn.functional as F
-from torch_geometric.utils import to_undirected, get_laplacian
+from torch_geometric.utils import is_undirected, to_undirected, get_laplacian
       
 def compute_posenc_stats(data, is_undirected):
       """Compute positional encodings for the given graph and store them in the data object.
