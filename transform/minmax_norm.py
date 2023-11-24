@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 
 def minmax_norm(input_dir, output_dir, stats, norm_stats):
+    os.makedirs(output_directory, exist_ok=True)
+    
     # Initialize global min and max arrays
     global_x_min = None
     global_x_max = None
