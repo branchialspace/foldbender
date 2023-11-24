@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 def stratified_split(input_directory):
     # Define the path for saving indices
-    indices_file_path = os.path.join(os.path.dirname(input_directory), os.path.basename(input_directory) + "_split_indices.pt")
+    indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
     # Load all files in the input directory and create a mapping to their indices
     file_list = os.listdir(input_directory)
