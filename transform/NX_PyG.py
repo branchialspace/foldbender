@@ -138,7 +138,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
         output_filename = f'{data_object_name}.pt'
         torch.save(data, os.path.join(output_dir, output_filename))
 
-def execute_nx_pyg(input_dir, output_dir, categories_path):
+def nx_pyg(input_dir, output_dir, categories_path):
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
     for filename in os.listdir(input_dir):
@@ -151,4 +151,4 @@ if __name__ == "__main__":
     output_directory = '/content/drive/MyDrive/protein-DATA/prot-sample/'
     categories_file_path = '/content/drive/MyDrive/protein-DATA/ohe-categories.csv'
     
-    execute_nx_pyg(input_directory, output_directory, categories_file_path)
+    nx_pyg(input_directory, output_directory, categories_file_path)
