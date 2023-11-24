@@ -168,6 +168,7 @@ def protein_molecule_graphs(input_directory, output_directory, file_name, includ
         pickle.dump(G, f)
 
 def alpha_nx(input_directory, output_directory, include_pae=False):
+    os.makedirs(output_directory, exist_ok=True)
     processed_files = [f for f in os.listdir(output_directory) if f.endswith('.pkl')]
     for file in os.listdir(input_directory):
         if file.endswith(".pdb"):
