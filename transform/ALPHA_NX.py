@@ -6,7 +6,7 @@ import networkx as nx
 from rdkit import Chem
 from Bio.PDB import PDBParser, DSSP
 
-def protein_molecule_graphs(file_name, include_pae=False):
+def protein_molecule_graphs(input_directory, output_directory, file_name, include_pae=False):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
     json_file_path = os.path.join(input_directory, file_name + '.json')
 
@@ -177,7 +177,7 @@ def alpha_nx(input_directory, output_directory, include_pae=False):
             if output_file_name in processed_files:
                 continue
 
-            # Process the protein molecule graphs (assuming this function is defined elsewhere)
+            # Process the protein molecule graphs
             protein_molecule_graphs(input_directory, output_directory, file_name_without_extension, include_pae)
 
             # Add the processed file to the list
