@@ -21,7 +21,7 @@ def process_categories(input_dir, categories_path):
     # Collect unique categories
     unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures = set(), set(), set(), set()
     for filename in os.listdir(input_dir):
-        if filename.endswith(".pickle"):
+        if filename.endswith(".pkl"):
             with open(os.path.join(input_dir, filename), 'rb') as file:
                 G = pickle.load(file)
                 for _, data in G.nodes(data=True):
@@ -44,7 +44,7 @@ def process_categories(input_dir, categories_path):
     return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
 def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
-    data_object_name = filename.replace('.pickle', '')
+    data_object_name = filename.replace('.pkl', '')
     filepath = os.path.join(input_dir, filename)
 
     # Load the NetworkX graph
@@ -142,7 +142,7 @@ def nx_pyg(input_dir, output_dir, categories_path):
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
     for filename in os.listdir(input_dir):
-        if filename.endswith(".pickle"):
+        if filename.endswith(".pkl"):
             process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
 
 if __name__ == "__main__":
