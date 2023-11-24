@@ -20,9 +20,9 @@ def compute_posenc_stats(data, is_undirected):
     # filtered_edge_index = data.edge_index[:, mask]
 
     if is_undirected:
-        undir_edge_index = to_undirected(edge_index) # or filtered_edge_index
+        undir_edge_index = to_undirected(data.edge_index) # or filtered_edge_index
     else:
-        undir_edge_index = edge_index # or filtered_edge_index
+        undir_edge_index = data.edge_index # or filtered_edge_index
 
     # Eigen values and vectors.
     evals, evects = None, None
