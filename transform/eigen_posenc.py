@@ -3,34 +3,6 @@ import os
 import torch
 import torch.nn.functional as F
 from torch_geometric.utils import to_undirected, get_laplacian
-
-def precompute_eigens(input_dir, output_dir, sample_size=10):
-    """Process each .pt PyG Data object in the input directory and save to the output directory.
-
-    Args:
-        input_dir: Directory containing the input .pt PyG Data objects.
-        output_dir: Directory where the modified .pt PyG Data objects will be saved.
-        sample_size: Number of graphs to sample for determining directedness.
-    """
-    # List all .pt files in the input directory
-    dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
-    
-    # Sample the dataset to determine if graphs are undirected
-    sample_files = dataset_files[:sample_size]
-    sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
-    is_undirected = all(d.is_undirected() for d in sample_graphs)
-
-    # Ensure output directory exists
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # Process each file
-    for filename in dataset_files:
-        data_path = os.path.join(input_dir, filename)
-        data = torch.load(data_path)
-        compute_posenc_stats(data, is_undirected)
-        output_path = os.path.join(output_dir, filename)
-        torch.save(data, output_path)
       
 def compute_posenc_stats(data, is_undirected):
     """Compute positional encodings for the given graph and store them in the data object.
@@ -41,27 +13,32 @@ def compute_posenc_stats(data, is_undirected):
     """
     # Basic preprocessing of the input graph.
     N = data.x.shape[0]  # Number of nodes, including disconnected nodes.
-    laplacian_norm_type = 'sym'  # Example: 'sym' for symmetric normalization
+    laplacian_norm_type = None
 
-    # Filter edges based on the non-zero value in the first position of edge_attr
-    mask = data.edge_attr[:, 0].nonzero().view(-1)
-    filtered_edge_index = data.edge_index[:, mask]
+    # Filter edges based on the non-zero value in the first position of edge_attr (only if PAE edges are included)
+    # mask = data.edge_attr[:, 0].nonzero().view(-1)
+    # filtered_edge_index = data.edge_index[:, mask]
 
     if is_undirected:
-        undir_edge_index = to_undirected(filtered_edge_index)
+        undir_edge_index = to_undirected(edge_index) # or filtered_edge_index
     else:
-        undir_edge_index = filtered_edge_index
+        undir_edge_index = edge_index # or filtered_edge_index
 
+    # Eigen values and vectors.
+    evals, evects = None, None
     # Get Laplacian in dense format
     edge_index, edge_weight = get_laplacian(undir_edge_index, normalization=laplacian_norm_type, num_nodes=N)
-    L = torch.zeros((N, N), dtype=edge_weight.dtype)
-    for i, edge in enumerate(edge_index.t()):
-        L[edge[0], edge[1]] = edge_weight[i]
+    edge_index = edge_index.to(device='cuda')
+    edge_weight = edge_weight.to(device='cuda')
+    
+    # Create dense Laplacian matrix
+    L = torch.zeros((N, N), device='cuda')
+    L[edge_index[0], edge_index[1]] = edge_weight
 
     # Compute eigenvalues and eigenvectors
-    evals, evects = torch.linalg.eigh(L)
     max_freqs = 16
     eigvec_norm = "L2"
+    evals, evects = torch.linalg.eigh(L)
     EigVals, EigVecs = get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm)
 
     # Store in data object
@@ -120,6 +97,34 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
     EigVecs = EigVecs / denom
 
     return EigVecs
+
+def precompute_eigens(input_dir, output_dir, sample_size=10):
+    """Process each .pt PyG Data object in the input directory and save to the output directory.
+
+    Args:
+        input_dir: Directory containing the input .pt PyG Data objects.
+        output_dir: Directory where the modified .pt PyG Data objects will be saved.
+        sample_size: Number of graphs to sample for determining directedness.
+    """
+    # List all .pt files in the input directory
+    dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
+    
+    # Sample the dataset to determine if graphs are undirected
+    sample_files = dataset_files[:sample_size]
+    sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
+    is_undirected = all(d.is_undirected() for d in sample_graphs)
+
+    # Ensure output directory exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Process each file
+    for filename in dataset_files:
+        data_path = os.path.join(input_dir, filename)
+        data = torch.load(data_path)
+        compute_posenc_stats(data, is_undirected)
+        output_path = os.path.join(output_dir, filename)
+        torch.save(data, output_path)
 
 if __name__ == "__main__":
 
