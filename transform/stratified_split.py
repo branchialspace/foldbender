@@ -54,6 +54,9 @@ def stratified_split(input_directory, indices_file_path):
 
     return indices_dict
 
-input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
-indices_file_path = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
-indices_dict = stratified_split(input_directory, indices_file_path)
+if __name__ == "__main__":
+    
+    input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
+    indices_file_path = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
+    
+    indices_dict = stratified_split(input_directory, indices_file_path)
