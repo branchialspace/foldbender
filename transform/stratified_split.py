@@ -5,7 +5,13 @@ import torch
 from collections import Counter
 from sklearn.model_selection import train_test_split
 
-def stratified_split(input_directory, indices_file_path):
+def stratified_split(input_directory):
+    # # Define the path for saving indices
+    directory_name = os.path.basename(input_directory)
+    root_directory = os.path.dirname(input_directory)
+    indices_file_name = f"{directory_name}_split_indices.pt"
+    indices_file_path = os.path.join(root_directory, indices_file_name)
+    
     # Load all files in the input directory and create a mapping to their indices
     file_list = os.listdir(input_directory)
     file_path_to_index = {os.path.join(input_directory, file): idx for idx, file in enumerate(file_list)}
@@ -57,6 +63,5 @@ def stratified_split(input_directory, indices_file_path):
 if __name__ == "__main__":
     
     input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
-    indices_file_path = '/content/drive/MyDrive/protein-DATA/dataset-indices.pt'
     
-    indices_dict = stratified_split(input_directory, indices_file_path)
+    indices_dict = stratified_split(input_directory)
