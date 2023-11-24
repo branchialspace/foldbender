@@ -6,11 +6,9 @@ import pandas as pd
 
 def minmax_norm(input_dir, output_dir):
     os.makedirs(output_directory, exist_ok=True)
-    parent_dir = os.path.dirname(output_dir)
-    output_dir_name = os.path.basename(output_dir)
-    stats = os.path.join(parent_dir, f"{output_dir_name}_stats.csv")
-    norm_stats = os.path.join(parent_dir, f"{output_dir_name}_norm_stats.csv")
-    
+    stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_stats.csv")
+    norm_stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_norm_stats.csv")
+
     # Initialize global min and max arrays
     global_x_min = None
     global_x_max = None
