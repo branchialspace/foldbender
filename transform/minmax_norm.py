@@ -4,8 +4,12 @@ import torch
 import numpy as np
 import pandas as pd
 
-def minmax_norm(input_dir, output_dir, stats, norm_stats):
+def minmax_norm(input_dir, output_dir):
     os.makedirs(output_directory, exist_ok=True)
+    parent_dir = os.path.dirname(output_dir)
+    output_dir_name = os.path.basename(output_dir)
+    stats = os.path.join(parent_dir, f"{output_dir_name}_stats.csv")
+    norm_stats = os.path.join(parent_dir, f"{output_dir_name}_norm_stats.csv")
     
     # Initialize global min and max arrays
     global_x_min = None
@@ -85,7 +89,5 @@ if __name__ == "__main__":
 
     input_dir = '/content/drive/MyDrive/protein-DATA/prot-sample'
     output_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
-    stats = '/content/drive/MyDrive/protein-DATA/minmax-stats.csv'
-    norm_stats = '/content/drive/MyDrive/protein-DATA/norm-stats.csv'
     
     minmax_norm(input_dir, output_dir, stats, norm_stats)
