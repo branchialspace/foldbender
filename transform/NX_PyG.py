@@ -93,8 +93,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
                                   data['O_NH_2_energy']]], dtype=torch.float).squeeze(0)
                 ], dim=0))
 
-
-       for node1, node2, data in G.edges(data=True):
+        for node1, node2, data in G.edges(data=True):
             # Skip edges with 'pae' attribute if include_pae is False
             if not include_pae and 'pae' in data:
                 continue
@@ -115,7 +114,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
                 ]
             edge_feat.append(edge_features)
             edge_index.append((node_mapping[node1], node_mapping[node2]))
-
+        
         # Convert lists to tensors
         edge_index = torch.LongTensor(edge_index).t().contiguous()
         feat = torch.stack(feat)
