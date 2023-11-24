@@ -121,7 +121,9 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
 
     return EigVecs
 
-input_dir = "/content/drive/MyDrive/protein-DATA/sample-final"
-output_dir = "/content/drive/MyDrive/protein-DATA/sample_final_eigens"
+if __name__ == "__main__":
 
-precompute_eigens(input_dir, output_dir)
+    input_dir = "/content/drive/MyDrive/protein-DATA/sample-final"
+    output_dir = "/content/drive/MyDrive/protein-DATA/sample_final_eigens"
+    
+    precompute_eigens(input_dir, output_dir)
