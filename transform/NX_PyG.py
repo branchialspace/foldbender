@@ -44,6 +44,7 @@ def process_categories(input_dir, categories_path):
     return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
 def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
+    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = encoders
     data_object_name = filename.replace('.pkl', '')
     filepath = os.path.join(input_dir, filename)
 
