@@ -38,8 +38,10 @@ def label_protein_data(input_directory, output_directory, train_terms):
                 # Save the modified data object to the output directory
                 torch.save(data_obj, os.path.join(output_directory, filename))
 
-input_directory = "/content/drive/MyDrive/protein-DATA/sample-atomic-encoded"
-output_directory = "/content/drive/MyDrive/protein-DATA/sample-encoded-labeled"
-train_terms = "/content/drive/MyDrive/cafa-5-protein-function-prediction/Train/train_terms.tsv"
-
-label_protein_data(input_directory, output_directory, train_terms)
+if __name__ == "__main__":
+    
+    input_directory = "/content/drive/MyDrive/protein-DATA/sample-atomic-encoded"
+    output_directory = "/content/drive/MyDrive/protein-DATA/sample-encoded-labeled"
+    train_terms = "/content/drive/MyDrive/cafa-5-protein-function-prediction/Train/train_terms.tsv"
+    
+    label_protein_data(input_directory, output_directory, train_terms)
