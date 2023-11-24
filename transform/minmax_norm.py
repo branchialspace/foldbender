@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 def minmax_norm(input_dir, output_dir):
-    os.makedirs(output_directory, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_stats.csv")
     norm_stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_norm_stats.csv")
 
