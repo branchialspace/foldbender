@@ -140,6 +140,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
         torch.save(data, os.path.join(output_dir, output_filename))
 
 def nx_pyg(input_dir, output_dir, categories_path):
+    os.makedirs(output_directory, exist_ok=True)
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
     for filename in os.listdir(input_dir):
