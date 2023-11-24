@@ -53,7 +53,7 @@ def get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm='L2'):
         max_freqs: Maximum number of top smallest frequencies / eigenvecs for padding
         eigvec_norm: Normalization for the eigen vectors of the Laplacian
     Returns:
-        Tensor (num_nodes, max_freqs, 1) eigenvalues repeated for each node
+        Tensor (num_nodes, max_freqs) eigenvalues repeated for each node
         Tensor (num_nodes, max_freqs) of eigenvector values per node
     """
     N = evals.size(0)  # Number of nodes, including disconnected nodes.
