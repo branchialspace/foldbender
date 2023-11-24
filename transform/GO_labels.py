@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from torch_geometric.data import Data
 
-def label_protein_data(input_directory, output_directory, train_terms):
+def go_labels(input_directory, output_directory, train_terms):
     # Load the train_terms.tsv file and parse it
     df = pd.read_csv(train_terms, sep='\t')
     df.sort_values(by='term', inplace=True)
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     output_directory = "/content/drive/MyDrive/protein-DATA/sample-encoded-labeled"
     train_terms = "/content/drive/MyDrive/cafa-5-protein-function-prediction/Train/train_terms.tsv"
     
-    label_protein_data(input_directory, output_directory, train_terms)
+    go_labels(input_directory, output_directory, train_terms)
