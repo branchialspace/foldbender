@@ -115,7 +115,7 @@ def precompute_eigens(input_dir, output_dir, sample_size=10):
     is_undirected = all(d.is_undirected() for d in sample_graphs)
 
     # Ensure output directory exists
-    os.makedirs(output_directory, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     # Process each file
     for filename in dataset_files:
