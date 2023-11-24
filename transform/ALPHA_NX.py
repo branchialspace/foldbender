@@ -4,6 +4,7 @@ import pickle
 import json
 import networkx as nx
 from rdkit import Chem
+from rdkit.Chem import rdMolTransforms
 from Bio.PDB import PDBParser, DSSP
 
 def protein_molecule_graphs(input_directory, output_directory, file_name, include_pae=False):
