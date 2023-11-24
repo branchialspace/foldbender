@@ -183,7 +183,9 @@ def process_all_proteins(input_directory, output_directory, include_pae=False):
             # Add the processed file to the list
             processed_files.append(output_file_name)
 
-input_directory = 'path/to/input_directory'
-output_directory = 'path/to/output_directory'
-
-process_all_proteins(input_directory, output_directory)
+if __name__ == "__main__":
+    
+    input_directory = 'path/to/input_directory'
+    output_directory = 'path/to/output_directory'
+    
+    process_all_proteins(input_directory, output_directory)
