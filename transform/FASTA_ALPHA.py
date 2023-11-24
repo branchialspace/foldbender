@@ -78,6 +78,9 @@ def fasta_to_alphafold(input_fasta, base_directory, max_retries=10, include_pae=
     else:
         print("Operation succeeded.")
 
-input_fasta = 'path/to/training_sequences.fasta'
-base_directory = 'path/to/input_data'
-fasta_to_alphafold(input_fasta, base_directory)
+if __name__ == "__main__":
+        
+    input_fasta = 'path/to/training_sequences.fasta'
+    base_directory = 'path/to/input_data'
+    
+    fasta_to_alphafold(input_fasta, base_directory)
