@@ -98,7 +98,7 @@ def get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm='L2'):
         EigVals = F.pad(evals, (0, max_freqs - N), value=float('nan')).unsqueeze(0)
     else:
         EigVals = evals.unsqueeze(0)
-    EigVals = EigVals.repeat(N, 1).unsqueeze(2)
+    EigVals = EigVals.repeat(N, 1)
 
     return EigVals, EigVecs
 
