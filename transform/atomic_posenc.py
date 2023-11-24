@@ -8,9 +8,7 @@ from torch_geometric.data import Data
 import os
 
 def soap_local(input_directory, output_directory):
-    # Create the output directory if it does not exist
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+    os.makedirs(output_directory, exist_ok=True)
 
     # Iterate over the .pt files in the directory
     for filename in os.listdir(input_directory):
