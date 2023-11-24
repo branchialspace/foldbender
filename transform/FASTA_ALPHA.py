@@ -60,6 +60,7 @@ def retrieve_file(url, file_path, file_type, delay, max_retries):
     time.sleep(delay)
 
 def fasta_alpha(input_fasta, base_directory, max_retries=10, include_pae=False):
+    os.makedirs(base_directory, exist_ok=True)
     existing_files = {f.split('.')[0] for f in os.listdir(base_directory) if f.endswith('.pdb') or f.endswith('.json')}
     retries = 0
     success = False
