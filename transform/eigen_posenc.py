@@ -42,8 +42,8 @@ def compute_posenc_stats(data, is_undirected):
       EigVals, EigVecs = get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm)
       
       # Store in data object
-      data.EigVals = EigVals
-      data.EigVecs = EigVecs
+      data.EigVals = EigVals.to('cpu')
+      data.EigVecs = EigVecs.to('cpu')
 
       return data
 
