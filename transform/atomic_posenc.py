@@ -29,7 +29,7 @@ def soap_local(input_directory, output_directory):
             # Iterate over each atom
             for i in range(num_atoms):
                 # Find all atoms connected to atom i
-                connected_atoms = [j for j in edge_index[1][edge_index[0] == i]]
+                connected_atoms = [j for j in edge_index[1][edge_index[0] == i]] + [j for j in edge_index[0][edge_index[1] == i]]
 
                 # Calculate distances to connected atoms and find the maximum
                 max_distance = max((np.linalg.norm(atom_coords[i] - atom_coords[j]) for j in connected_atoms), default=0)
