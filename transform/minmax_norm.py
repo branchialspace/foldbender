@@ -59,9 +59,9 @@ def minmax_norm(input_dir, output_dir):
                                     (torch.tensor(global_edge_attr_max, dtype=torch.float32) - torch.tensor(global_edge_attr_min, dtype=torch.float32))
 
             data_object.x[torch.isnan(data_object.x)] = 0.0
-            data_object.x = torch.round(data_object.x * 10000) / 10000
-            data_object.edge_attr = torch.round(data_object.edge_attr * 10000) / 10000
-            data_object.atom_coords = torch.round(data_object.atom_coords * 10000) / 10000
+            data_object.x = torch.round(data_object.x * 1000000) / 1000000
+            data_object.edge_attr = torch.round(data_object.edge_attr * 1000000) / 1000000
+            data_object.atom_coords = torch.round(data_object.atom_coords * 1000000) / 1000000
 
             accumulated_x_mins.append(data_object.x.min(dim=0).values)
             accumulated_x_maxs.append(data_object.x.max(dim=0).values)
@@ -78,8 +78,8 @@ def minmax_norm(input_dir, output_dir):
 
     norm_rounded_stats_df = pd.DataFrame({
         'feature': feature_names_x + feature_names_edge_attr,
-        'rounded_min': np.round(np.concatenate((global_rounded_x_min, global_rounded_edge_attr_min)), 4),
-        'rounded_max': np.round(np.concatenate((global_rounded_x_max, global_rounded_edge_attr_max)), 4)
+        'rounded_min': np.round(np.concatenate((global_rounded_x_min, global_rounded_edge_attr_min)), 6),
+        'rounded_max': np.round(np.concatenate((global_rounded_x_max, global_rounded_edge_attr_max)), 6)
     })
     norm_rounded_stats_df.to_csv(norm_stats, index=False)
 
