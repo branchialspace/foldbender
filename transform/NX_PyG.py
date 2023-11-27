@@ -78,7 +78,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
                     torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
                     torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
                     torch.tensor([[data['degree'],
-                                  # data['aromatic'],
+                                  data['aromatic'],
                                   data['residue_number'],
                                   data['plddt'],
                                   data['exposure'],
