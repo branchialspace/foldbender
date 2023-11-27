@@ -2,6 +2,7 @@
 import os
 import pickle
 import json
+import numpy as np
 import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import rdMolTransforms
@@ -71,6 +72,20 @@ def protein_molecule_graphs(input_directory, output_directory, file_name, includ
         bond_length = rdMolTransforms.GetBondLength(conf, atom_i, atom_j)
 
         G.add_edge(atom_i, atom_j, bond_idx=bond_idx, bond_order=bond_order, bond_length=bond_length)
+
+    # Calculate Euclidean distance between two atoms
+    def calculate_distance(atom1_idx, atom2_idx, graph):
+        pos1 = np.array(graph.nodes[atom1_idx]['atom_coords'])
+        pos2 = np.array(graph.nodes[atom2_idx]['atom_coords'])
+        return np.linalg.norm(pos1 - pos2)
+    
+    # Add edges between CA atoms of consecutive residues to represent residue level structure
+    for res_num, ca_idx in residue_to_ca_atom.items():
+        next_ca_idx = residue_to_ca_atom.get(res_num + 1)
+        if next_ca_idx is not None:
+            bond_length = calculate_distance(ca_idx, next_ca_idx, G)
+            
+            G.add_edge(ca_idx, next_ca_idx, bond_idx=0, bond_order=0, bond_length=bond_length)
 
     # Identify pLDDT as Node Attributes and PAE as Edges
     # Create a dictionary mapping each residue to its pLDDT value
