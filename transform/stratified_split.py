@@ -2,16 +2,14 @@
 import os
 import shutil
 import torch
-from collections import Counter
-from sklearn.model_selection import train_test_split
+from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory):
+def stratified_split(input_directory, n_splits=3):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
     # Load all files in the input directory and create a mapping to their indices
     file_list = os.listdir(input_directory)
-    file_path_to_index = {os.path.join(input_directory, file): idx for idx, file in enumerate(file_list)}
 
     # Extract labels for splitting purposes
     label_representations = []
@@ -20,31 +18,28 @@ def stratified_split(input_directory):
         label_indices = data.y.nonzero(as_tuple=True)[0]
         label_representations.append(tuple(sorted(label_indices.tolist())))
 
-    # Function to determine if stratification is possible
-    def can_stratify(labels):
-        label_counts = Counter(labels)
-        return all(count > 1 for count in label_counts.values())
+    # Convert label representations to a format suitable for MultilabelStratifiedKFold
+    unique_labels = sorted(set(sum(label_representations, ())))
+    label_to_index = {label: idx for idx, label in enumerate(unique_labels)}
 
-    # If we can stratify based on the labels, we do. Otherwise, we split randomly.
-    split_args = dict(test_size=0.2, random_state=42)
-    if can_stratify(label_representations):
-        split_args["stratify"] = label_representations
+    multilabel_format = torch.zeros(len(file_list), len(unique_labels))
+    for i, labels in enumerate(label_representations):
+        for label in labels:
+            multilabel_format[i, label_to_index[label]] = 1
 
-    train_indices, temp_test_indices, _, _ = train_test_split(range(len(file_list)), label_representations, **split_args)
+    # Use MultilabelStratifiedKFold for splitting
+    mskf = MultilabelStratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
-    temp_label_representations = [label_representations[i] for i in temp_test_indices]
-    split_args_val_test = dict(test_size=0.5, random_state=42)
-    if can_stratify(temp_label_representations):
-        split_args_val_test["stratify"] = temp_label_representations
-
-    val_indices, test_indices = train_test_split(temp_test_indices, **split_args_val_test)
-    # Save indices to a .pt file
+    indices = list(mskf.split(multilabel_format, multilabel_format))
+    
+    # Assign indices to train, validation, and test sets
     indices_dict = {
-        'train': train_indices,
-        'valid': val_indices,
-        'test': test_indices
+        'train': indices[0][0],  # First fold for training
+        'valid': indices[1][0],  # Second fold for validation
+        'test': indices[2][0]    # Third fold for testing
     }
 
+    # Save indices to a .pt file
     torch.save(indices_dict, indices_file_path)
 
     # Rename files based on the split indices
