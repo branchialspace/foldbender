@@ -1,14 +1,13 @@
 # Multi-label stratified split for train, val, test sets
 import os
-import shutil
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory, n_splits=3):
+def stratified_split(input_directory, n_splits=8):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
-    # Load all files in the input directory and create a mapping to their indices
+    # Load all files in the input directory
     file_list = os.listdir(input_directory)
 
     # Extract labels for splitting purposes
@@ -31,24 +30,21 @@ def stratified_split(input_directory, n_splits=3):
     mskf = MultilabelStratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     indices = list(mskf.split(multilabel_format, multilabel_format))
-    
-    # Assign indices to train, validation, and test sets
+
+    # Combine first 6 folds for training, use 7th for validation and 8th for testing
+    train_indices = [idx for fold in indices[:6] for idx in fold[0]]
+    valid_indices = indices[6][0]
+    test_indices = indices[7][0]
+
+    # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
-        'train': indices[0][0],  # First fold for training
-        'valid': indices[1][0],  # Second fold for validation
-        'test': indices[2][0]    # Third fold for testing
+        'train': [file_list[idx] for idx in train_indices],
+        'valid': [file_list[idx] for idx in valid_indices],
+        'test': [file_list[idx] for idx in test_indices]
     }
 
     # Save indices to a .pt file
     torch.save(indices_dict, indices_file_path)
-
-    # Rename files based on the split indices
-    for split, indices in indices_dict.items():
-        for idx in indices:
-            original_file_path = os.path.join(input_directory, file_list[idx])
-            new_file_name = f"{idx}.pt"
-            new_file_path = os.path.join(input_directory, new_file_name)
-            shutil.move(original_file_path, new_file_path)
 
     return indices_dict
 
