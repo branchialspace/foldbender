@@ -148,29 +148,36 @@ def protein_molecule_graphs(input_directory, output_directory, file_name, includ
 
         return dssp_dict
 
-    dssp_data = run_dssp(pdb_file_path)
+    try:
+        dssp_data = run_dssp(pdb_file_path)
 
-    for node, data in G.nodes(data=True):
-        if data['residue_number'] in dssp_data:
-            dssp_node_data = dssp_data[data['residue_number']]
+        for node, data in G.nodes(data=True):
+            if data['residue_number'] in dssp_data:
+                dssp_node_data = dssp_data[data['residue_number']]
 
-            # Unpack DSSP data
-            (dssp_index, aa, ss, exposure, phi, psi, NH_O_1_relidx, NH_O_1_energy, O_NH_1_relidx, O_NH_1_energy,
-            NH_O_2_relidx, NH_O_2_energy, O_NH_2_relidx, O_NH_2_energy) = dssp_node_data
+                # Unpack DSSP data
+                (dssp_index, aa, ss, exposure, phi, psi, NH_O_1_relidx, NH_O_1_energy, O_NH_1_relidx, O_NH_1_energy,
+                NH_O_2_relidx, NH_O_2_energy, O_NH_2_relidx, O_NH_2_energy) = dssp_node_data
 
-            # Update node attributes
-            G.nodes[node]['secondary_structure'] = ss
-            G.nodes[node]['exposure'] = exposure
-            G.nodes[node]['phi'] = phi
-            G.nodes[node]['psi'] = psi
-            G.nodes[node]['NH_O_1_relidx'] = NH_O_1_relidx
-            G.nodes[node]['NH_O_1_energy'] = NH_O_1_energy
-            G.nodes[node]['O_NH_1_relidx'] = O_NH_1_relidx
-            G.nodes[node]['O_NH_1_energy'] = O_NH_1_energy
-            G.nodes[node]['NH_O_2_relidx'] = NH_O_2_relidx
-            G.nodes[node]['NH_O_2_energy'] = NH_O_2_energy
-            G.nodes[node]['O_NH_2_relidx'] = O_NH_2_relidx
-            G.nodes[node]['O_NH_2_energy'] = O_NH_2_energy
+                # Update node attributes
+                G.nodes[node]['secondary_structure'] = ss
+                G.nodes[node]['exposure'] = exposure
+                G.nodes[node]['phi'] = phi
+                G.nodes[node]['psi'] = psi
+                G.nodes[node]['NH_O_1_relidx'] = NH_O_1_relidx
+                G.nodes[node]['NH_O_1_energy'] = NH_O_1_energy
+                G.nodes[node]['O_NH_1_relidx'] = O_NH_1_relidx
+                G.nodes[node]['O_NH_1_energy'] = O_NH_1_energy
+                G.nodes[node]['NH_O_2_relidx'] = NH_O_2_relidx
+                G.nodes[node]['NH_O_2_energy'] = NH_O_2_energy
+                G.nodes[node]['O_NH_2_relidx'] = O_NH_2_relidx
+                G.nodes[node]['O_NH_2_energy'] = O_NH_2_energy
+
+    except Exception as e:
+        print(f"Failed to run DSSP for {file_name}: {e}")
+        # Optionally delete the current protein graph here if needed
+        # del G
+        return
 
     # Convert atom_coords to string
     for node, data in G.nodes(data=True):
