@@ -2,12 +2,8 @@
 import torch
 import pandas as pd
 import os
-from torch_geometric.data import Data
-
-import os
-import pandas as pd
-import torch
 import zipfile
+from torch_geometric.data import Data
 
 def go_labels(input_directory, output_directory, train_terms, zip_io=True):
     os.makedirs(output_directory, exist_ok=True)
