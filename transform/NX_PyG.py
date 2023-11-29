@@ -8,6 +8,7 @@ import pickle
 from torch_geometric.data import Data
 import numpy as np
 import csv
+import zipfile
 
 def process_categories(input_dir, categories_path):
     # Initialize encoders
@@ -43,7 +44,7 @@ def process_categories(input_dir, categories_path):
 
     return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
-def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
+def process_graph(filename, input_dir, output_dir, encoders, include_pae=False, zip_output=True):
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = encoders
     data_object_name = filename.replace('.pkl', '')
     filepath = os.path.join(input_dir, filename)
@@ -137,16 +138,25 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
     
         # Save the PyTorch object to the local file system
         output_filename = f'{data_object_name}.pt'
+        output_filepath = os.path.join(output_dir, output_filename)
         torch.save(data, os.path.join(output_dir, output_filename))
 
-def nx_pyg(input_dir, output_dir):
+        # Zip the file if zip_output is True
+        if zip_output:
+            zip_filename = f'{data_object_name}.zip'
+            zip_filepath = os.path.join(output_dir, zip_filename)
+            with zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                zipf.write(output_filepath, arcname=output_filename)
+            os.remove(output_filepath)
+
+def nx_pyg(input_dir, output_dir, include_pae=False, zip_output=True):
     os.makedirs(output_dir, exist_ok=True)
     categories_path = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(os.path.normpath(output_dir))}_categories.csv")
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
     for filename in os.listdir(input_dir):
         if filename.endswith(".pkl"):
-            process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures))
+            process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures), include_pae=include_pae, zip_output=zip_output)
 
 if __name__ == "__main__":
 
