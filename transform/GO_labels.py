@@ -4,7 +4,12 @@ import pandas as pd
 import os
 from torch_geometric.data import Data
 
-def go_labels(input_directory, output_directory, train_terms):
+import os
+import pandas as pd
+import torch
+import zipfile
+
+def go_labels(input_directory, output_directory, train_terms, zip_io=True):
     os.makedirs(output_directory, exist_ok=True)
     # Load the train_terms.tsv file and parse it
     df = pd.read_csv(train_terms, sep='\t')
@@ -21,12 +26,20 @@ def go_labels(input_directory, output_directory, train_terms):
     # Process each file in the directory
     for filename in all_files:
         if filename.endswith('.pt'):
-            entry_id = filename.split('.')[0]  # Assuming the file names are just EntryID.pt
+            # Handle zipped files
+            if zip_io:
+                with zipfile.ZipFile(os.path.join(input_directory, filename), 'r') as zip_ref:
+                    zip_ref.extractall(input_directory)
+                unzipped_filename = filename.replace('.zip', '')
+            else:
+                unzipped_filename = filename
+
+            entry_id = unzipped_filename.split('.')[0]  # Assuming the file names are just EntryID.pt
 
             # If the filename (without .pt) exists in the df's EntryID column
             if entry_id in df['EntryID'].values:
                 # Load the .pt file from the local directory as a PyG data object
-                data_obj = torch.load(os.path.join(input_directory, filename))
+                data_obj = torch.load(os.path.join(input_directory, unzipped_filename))
 
                 # Create a binary vector for the terms associated with this entry
                 y = torch.zeros(len(unique_terms), dtype=torch.float32)
@@ -37,7 +50,14 @@ def go_labels(input_directory, output_directory, train_terms):
                 data_obj.y = y
 
                 # Save the modified data object to the output directory
-                torch.save(data_obj, os.path.join(output_directory, filename))
+                output_path = os.path.join(output_directory, unzipped_filename)
+                torch.save(data_obj, output_path)
+
+                # Zip the output file if zip_io is True
+                if zip_io:
+                    with zipfile.ZipFile(output_path + '.zip', 'w') as zipf:
+                        zipf.write(output_path, unzipped_filename)
+                        os.remove(output_path)
 
 if __name__ == "__main__":
     
