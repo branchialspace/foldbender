@@ -1,9 +1,10 @@
 # Multi-label stratified split for train, val, test sets
 import os
 import torch
+import zipfile
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory, n_splits=8):
+def stratified_split(input_directory, n_splits=8, zip_io=True):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
