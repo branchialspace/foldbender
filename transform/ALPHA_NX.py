@@ -3,6 +3,7 @@ import os
 import pickle
 import json
 import numpy as np
+import concurrent
 import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import rdMolTransforms
