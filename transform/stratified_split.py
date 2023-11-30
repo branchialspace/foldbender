@@ -1,10 +1,9 @@
 # Multi-label stratified split for train, val, test sets
 import os
 import torch
-import zipfile
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory, n_splits=8, zip_io=True):
+def stratified_split(input_directory, n_splits=8):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
@@ -13,24 +12,8 @@ def stratified_split(input_directory, n_splits=8, zip_io=True):
 
     # Extract labels for splitting purposes
     label_representations = []
-
     for file in file_list:
-        # Handle zip files if zip_io is True
-        if zip_io and file.endswith('.zip'):
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Extract the zip file to the temporary directory
-                zip_path = os.path.join(input_directory, file)
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    zip_ref.extractall(temp_dir)
-
-                # Assuming there's only one file in the zip, load it
-                temp_file = os.listdir(temp_dir)[0]
-                data = torch.load(os.path.join(temp_dir, temp_file))
-        else:
-            # Load data normally for non-zip files
-            data = torch.load(os.path.join(input_directory, file))
-
-        # Extract labels for each file
+        data = torch.load(os.path.join(input_directory, file))
         label_indices = data.y.nonzero(as_tuple=True)[0]
         label_representations.append(tuple(sorted(label_indices.tolist())))
 
