@@ -1,6 +1,7 @@
 # NetworkX > PyTorch Geometric Graph Representation of proteins
 import os
 import torch
+import concurrent.futures
 import networkx as nx
 from sklearn import preprocessing
 from collections import defaultdict
@@ -144,9 +145,15 @@ def nx_pyg(input_dir, output_dir, include_pae=False):
     categories_path = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(os.path.normpath(output_dir))}_categories.csv")
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
 
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".pkl"):
-            process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures), include_pae)
+    files_to_process = [filename for filename in os.listdir(input_dir) if filename.endswith(".pkl")]
+    
+    # Define a helper function for processing a single file
+    def process_single_file(filename):
+        process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures), include_pae)
+
+    # Using ProcessPoolExecutor to parallelize processing
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(process_single_file, files_to_process)
 
 if __name__ == "__main__":
 
