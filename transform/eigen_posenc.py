@@ -1,9 +1,8 @@
 # precompute eigenvectors and eigenvalues for graphGPS laplacian positional encodings
 import os
-import zipfile
 import torch
 import torch.nn.functional as F
-from torch_geometric.utils import to_undirected, get_laplacian
+from torch_geometric.utils import is_undirected, to_undirected, get_laplacian
       
 def compute_posenc_stats(data, is_undirected):
       """Compute positional encodings for the given graph and store them in the data object.
@@ -101,62 +100,32 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
       
       return EigVecs
 
-def precompute_eigens(input_dir, output_dir, is_undirected=False, zip_io=True):
-    """Process each .pt PyG Data object in the input directory and save to the output directory.
-    
-    Args:
-      input_dir: Directory containing the input .pt PyG Data objects.
-      output_dir: Directory where the modified .pt PyG Data objects will be saved.
-      sample_size: Number of graphs to sample for determining directedness.
-      is_undirected: If False, compute_posenc_stats uses to_undirected
-      zip_io: If True, process zipped files.
-    """
-    # Function to unzip file
-    def unzip_file(zip_path, extract_dir):
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
-        # Assuming there is only one file in the zip
-        return os.path.join(extract_dir, zip_ref.namelist()[0])
-
-    # Function to zip file
-    def zip_file(file_path, zip_path):
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_ref:
-            zip_ref.write(file_path, os.path.basename(file_path))
-        os.remove(file_path)
-
-    # File extension to look for
-    file_ext = '.pt.zip' if zip_io else '.pt'
-
-    # List all relevant files in the input directory
-    dataset_files = [f for f in os.listdir(input_dir) if f.endswith(file_ext)]
-
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Process each file
-    for filename in dataset_files:
-        if zip_io:
-            # Unzip the file for processing
-            data_path = unzip_file(os.path.join(input_dir, filename), input_dir)
-        else:
-            data_path = os.path.join(input_dir, filename)
-
-        # Load and process the data
+def precompute_eigens(input_dir, output_dir, sample_size=10):
+      """Process each .pt PyG Data object in the input directory and save to the output directory.
+      
+      Args:
+        input_dir: Directory containing the input .pt PyG Data objects.
+        output_dir: Directory where the modified .pt PyG Data objects will be saved.
+        sample_size: Number of graphs to sample for determining directedness.
+      """
+      # List all .pt files in the input directory
+      dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
+      
+      # Sample the dataset to determine if graphs are undirected
+      sample_files = dataset_files[:sample_size]
+      sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
+      is_undirected = all(d.is_undirected() for d in sample_graphs)
+      
+      # Ensure output directory exists
+      os.makedirs(output_dir, exist_ok=True)
+      
+      # Process each file
+      for filename in dataset_files:
+        data_path = os.path.join(input_dir, filename)
         data = torch.load(data_path)
         compute_posenc_stats(data, is_undirected)
-
-        if zip_io:
-            # Update filename to .pt for saving
-            filename = filename.replace('.zip', '')
-            output_path = os.path.join(output_dir, filename)
-            torch.save(data, output_path)
-
-            # Zip the processed file
-            zip_file(output_path, output_path + '.zip')
-        else:
-            # Save the processed file directly
-            output_path = os.path.join(output_dir, filename)
-            torch.save(data, output_path)
+        output_path = os.path.join(output_dir, filename)
+        torch.save(data, output_path)
 
 if __name__ == "__main__":
 
