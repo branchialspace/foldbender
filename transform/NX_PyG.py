@@ -10,6 +10,18 @@ from torch_geometric.data import Data
 import numpy as np
 import csv
 
+def save_encoders(encoders, directory):
+    for name, encoder in encoders.items():
+        with open(os.path.join(directory, f'{name}_encoder.pkl'), 'wb') as f:
+            pickle.dump(encoder, f)
+
+def load_encoders(directory):
+    encoders = {}
+    for name in ['atom_names', 'atom_types', 'residue_names', 'secondary_structures']:
+        with open(os.path.join(directory, f'{name}_encoder.pkl'), 'rb') as f:
+            encoders[name] = pickle.load(f)
+    return encoders
+
 def process_categories(input_dir, categories_path):
     # Initialize encoders
     ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = (
@@ -41,6 +53,15 @@ def process_categories(input_dir, categories_path):
         for category_name, unique_values in zip(['atom_name', 'atom_type', 'residue_name', 'secondary_structure'], 
                                                 [unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures]):
             category_writer.writerow([category_name] + list(unique_values))
+
+    # Save the encoders
+    encoders = {
+        'atom_names': ohe_atom_names,
+        'atom_types': ohe_atom_types,
+        'residue_names': ohe_residue_names,
+        'secondary_structures': ohe_secondary_structures
+    }
+    save_encoders(encoders, os.path.dirname(categories_path))
 
     return ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures
 
@@ -140,22 +161,26 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
         output_filename = f'{data_object_name}.pt'
         torch.save(data, os.path.join(output_dir, output_filename))
 
+def process_file(args):
+    filename, input_dir, output_dir, categories_dir, include_pae = args
+
+    # Load the encoders
+    encoders = load_encoders(categories_dir)
+    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = (
+        encoders['atom_names'], encoders['atom_types'], encoders['residue_names'], encoders['secondary_structures']
+    )
+
+    process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures), include_pae)
+
 def nx_pyg(input_dir, output_dir, include_pae=False):
     os.makedirs(output_dir, exist_ok=True)
     categories_path = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(os.path.normpath(output_dir))}_categories.csv")
-    ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures = process_categories(input_dir, categories_path)
+    process_categories(input_dir, categories_path)
 
-    # List of files to process
-    files_to_process = [filename for filename in os.listdir(input_dir) if filename.endswith(".pkl")]
+    files_to_process = [(filename, input_dir, output_dir, os.path.dirname(categories_path), include_pae) for filename in os.listdir(input_dir) if filename.endswith(".pkl")]
 
-    # Define a helper function for parallel processing
-    def process_file(filename):
-        process_graph(filename, input_dir, output_dir, (ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures), include_pae)
-
-    # Number of processes
     num_processes = min(cpu_count(), len(files_to_process))
 
-    # Create a pool of processes and map the processing function to the files
     with Pool(num_processes) as pool:
         pool.map(process_file, files_to_process)
 
