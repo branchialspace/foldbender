@@ -189,23 +189,33 @@ def protein_molecule_graphs(input_directory, output_directory, file_name, includ
     with open(output_file_path, 'wb') as f:
         pickle.dump(G, f)
 
-def alpha_nx(input_directory, output_directory, include_pae=False):
+def process_file_wrapper(args):
+    """
+    Wrapper function to unpack arguments for protein_molecule_graphs.
+    """
+    return protein_molecule_graphs(*args)
+
+def alpha_nx(input_directory, output_directory, include_pae=False, max_workers=None):
     os.makedirs(output_directory, exist_ok=True)
     processed_files = [f for f in os.listdir(output_directory) if f.endswith('.pkl')]
+
+    # Prepare a list of arguments for each file to be processed
+    tasks = []
     for file in os.listdir(input_directory):
         if file.endswith(".pdb"):
             file_name_without_extension = os.path.splitext(file)[0]
             output_file_name = file_name_without_extension + '.pkl'
-            output_file_path = os.path.join(output_directory, output_file_name)
 
             if output_file_name in processed_files:
                 continue
 
-            # Process the protein molecule graphs
-            protein_molecule_graphs(input_directory, output_directory, file_name_without_extension, include_pae)
+            task_args = (input_directory, output_directory, file_name_without_extension, include_pae)
+            tasks.append(task_args)
 
-            # Add the processed file to the list
-            processed_files.append(output_file_name)
+    # Use ProcessPoolExecutor to process files in parallel
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+        # Map the protein_molecule_graphs function to the tasks
+        results = list(executor.map(process_file_wrapper, tasks))
 
 if __name__ == "__main__":
     
