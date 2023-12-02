@@ -113,7 +113,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
                                   data['NH_O_2_relidx'],
                                   data['NH_O_2_energy'],
                                   data['O_NH_2_relidx'],
-                                  data['O_NH_2_energy']]], dtype=torch.float).squeeze(0)
+                                  data['O_NH_2_energy']]], dtype=torch.float32).squeeze(0)
                 ], dim=0))
 
         for node1, node2, data in G.edges(data=True):
