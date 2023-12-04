@@ -17,7 +17,7 @@ def esm2_labels(embeddings_path, sequence_ids_path, input_dir, output_dir):
     # Iterate over the protein files in the input directory
     for filename in os.listdir(input_dir):
         file_path = os.path.join(input_dir, filename)
-        seq_id = filename.split('.')[0]  # Adjust if filename format is different
+        seq_id = filename.split('.')[0]
 
         if seq_id in embedding_dict:
             # Load the PyG data object
