@@ -18,4 +18,4 @@ if __name__ == "__main__":
 
     input_directory = '/content/drive/MyDrive/protein-DATA/41k_sample_processed_GO'
     output_directory = '/content/drive/MyDrive/protein-DATA/41k_sample_processed_noY'
-    process_pyg_data(input_directory, output_directory)
+    delete_y(input_directory, output_directory)
