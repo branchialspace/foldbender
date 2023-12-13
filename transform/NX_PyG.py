@@ -95,10 +95,10 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
             # Node features
             atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")])
             atom_coords_list.append(atom_coords)
-            feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]])).squeeze(0),
-                    torch.tensor(ohe_atom_types.transform([[data['atomic_number']]])).squeeze(0),
-                    torch.tensor(ohe_residue_names.transform([[data['residue_name']]])).squeeze(0),
-                    torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]])).squeeze(0),
+            feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]]), dtype=torch.float32).squeeze(0),
+                    torch.tensor(ohe_atom_types.transform([[data['atomic_number']]]), dtype=torch.float32).squeeze(0),
+                    torch.tensor(ohe_residue_names.transform([[data['residue_name']]]), dtype=torch.float32).squeeze(0),
+                    torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]]), dtype=torch.float32).squeeze(0),
                     torch.tensor([[data['degree'],
                                   data['aromatic'],
                                   data['residue_number'],
