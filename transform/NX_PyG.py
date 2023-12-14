@@ -41,7 +41,7 @@ def process_categories(input_dir, categories_path):
                     unique_atom_names.add(data['atom_name'])
                     unique_atom_types.add(data['atomic_number'])
                     unique_residue_names.add(data['residue_name'])
-                    unique_secondary_structures.add(data['secondary_structure'])
+                    unique_secondary_structures.add(data.get('secondary_structure', '-'))
     
     for ohe, unique_values in zip([ohe_atom_names, ohe_atom_types, ohe_residue_names, ohe_secondary_structures],
                                   [unique_atom_names, unique_atom_types, unique_residue_names, unique_secondary_structures]):
@@ -98,22 +98,22 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
             feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]]), dtype=torch.float32).squeeze(0),
                     torch.tensor(ohe_atom_types.transform([[data['atomic_number']]]), dtype=torch.float32).squeeze(0),
                     torch.tensor(ohe_residue_names.transform([[data['residue_name']]]), dtype=torch.float32).squeeze(0),
-                    torch.tensor(ohe_secondary_structures.transform([[data['secondary_structure']]]), dtype=torch.float32).squeeze(0),
+                    torch.tensor(ohe_secondary_structures.transform([[data.get('secondary_structure', '-')]]), dtype=torch.float32).squeeze(0),
                     torch.tensor([[data['degree'],
                                   data['aromatic'],
                                   data['residue_number'],
                                   data['plddt'],
-                                  data['exposure'],
-                                  data['phi'],
-                                  data['psi'],
-                                  data['NH_O_1_relidx'],
-                                  data['NH_O_1_energy'],
-                                  data['O_NH_1_relidx'],
-                                  data['O_NH_1_energy'],
-                                  data['NH_O_2_relidx'],
-                                  data['NH_O_2_energy'],
-                                  data['O_NH_2_relidx'],
-                                  data['O_NH_2_energy']]], dtype=torch.float32).squeeze(0)
+                                  data.get('exposure', 0),
+                                  data.get('phi', 0),
+                                  data.get('psi', 0),
+                                  data.get('NH_O_1_relidx', 0),
+                                  data.get('NH_O_1_energy', 0),
+                                  data.get('O_NH_1_relidx', 0),
+                                  data.get('O_NH_1_energy', 0),
+                                  data.get('NH_O_2_relidx', 0),
+                                  data.get('NH_O_2_energy', 0),
+                                  data.get('O_NH_2_relidx', 0),
+                                  data.get('O_NH_2_energy', 0)]], dtype=torch.float32).squeeze(0)
                 ], dim=0))
 
         for node1, node2, data in G.edges(data=True):
