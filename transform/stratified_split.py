@@ -46,7 +46,8 @@ def stratified_split(input_directory, n_splits=8):
     # Save indices to a .pt file
     torch.save(indices_dict, indices_file_path)
 
-    return indices_dict
+    for key in indices_dict.keys():
+        print(f"{key}: {len(indices_dict[key])} files")
 
 if __name__ == "__main__":
     
