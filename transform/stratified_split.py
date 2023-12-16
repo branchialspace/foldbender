@@ -28,13 +28,13 @@ def stratified_split(input_directory, n_splits=8):
 
     # Use MultilabelStratifiedKFold for splitting
     mskf = MultilabelStratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-
+    
     indices = list(mskf.split(multilabel_format, multilabel_format))
-
-    # Combine first 6 folds for training, use 7th for validation and 8th for testing
-    train_indices = [idx for fold in indices[:6] for idx in fold[0]]
-    valid_indices = indices[6][0]
-    test_indices = indices[7][0]
+    
+    # Combine validation indices of first 6 folds for training, use 7th for validation and 8th for testing
+    train_indices = [idx for fold in indices[:6] for idx in fold[1]]
+    valid_indices = indices[6][1]
+    test_indices = indices[7][1]
 
     # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
