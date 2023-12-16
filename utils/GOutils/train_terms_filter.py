@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('train_terms.tsv', sep='\t')
+df = pd.read_csv('/content/drive/MyDrive/cafa-5-protein-function-prediction/Train/train_terms.tsv', sep='\t')
 
 # Ensure each EntryID has at least one row for each of three different aspects
 valid_entry_ids = df.groupby('EntryID').filter(lambda x: x['aspect'].nunique() == 3)['EntryID'].unique()
@@ -14,4 +14,4 @@ df = df[df['term'].isin(terms_with_at_least_50)]
 print(f"Total number of unique EntryID values: {df['EntryID'].nunique()}")
 print(f"Total number of unique term values: {df['term'].nunique()}")
 
-df.to_csv('filtered_GO_terms.tsv', sep='\t', index=False)
+df.to_csv('/content/drive/MyDrive/cafa-5-protein-function-prediction/Train/filtered_GO_terms.tsv', sep='\t', index=False)
