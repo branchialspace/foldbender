@@ -15,5 +15,5 @@ pip install dscribe
 
 ```
 
-![Alt text]([[URL_to_image "Optional title"](https://github.com/dollabillgates/alphafold_transform/blob/main/alphafold_transform.png)]
+![alphafold_transform.png]
 
