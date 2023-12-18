@@ -100,36 +100,30 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
       
       return EigVecs
 
-def precompute_eigens(input_dir, output_dir, sample_size=10):
-      """Process each .pt PyG Data object in the input directory and save to the output directory.
-      
-      Args:
-        input_dir: Directory containing the input .pt PyG Data objects.
-        output_dir: Directory where the modified .pt PyG Data objects will be saved.
-        sample_size: Number of graphs to sample for determining directedness.
-      """
-      # List all .pt files in the input directory
-      dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
-      
-      # Sample the dataset to determine if graphs are undirected
-      sample_files = dataset_files[:sample_size]
-      sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
-      is_undirected = all(d.is_undirected() for d in sample_graphs)
-      
-      # Ensure output directory exists
-      os.makedirs(output_dir, exist_ok=True)
-      
-      # Process each file
-      for filename in dataset_files:
+def precompute_eigens(input_dir, sample_size=10):
+    """Process each .pt PyG Data object in the input directory in place.
+    
+    Args:
+      input_dir: Directory containing the input .pt PyG Data objects.
+      sample_size: Number of graphs to sample for determining directedness.
+    """
+    # List all .pt files in the input directory
+    dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
+    
+    # Sample the dataset to determine if graphs are undirected
+    sample_files = dataset_files[:sample_size]
+    sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
+    is_undirected = all(d.is_undirected() for d in sample_graphs)
+    
+    # Process each file
+    for filename in dataset_files:
         data_path = os.path.join(input_dir, filename)
         data = torch.load(data_path)
         compute_posenc_stats(data, is_undirected)
-        output_path = os.path.join(output_dir, filename)
-        torch.save(data, output_path)
+        torch.save(data, data_path)
 
 if __name__ == "__main__":
 
     input_dir = "/content/drive/MyDrive/protein-DATA/sample-final"
-    output_dir = "/content/drive/MyDrive/protein-DATA/sample_final_eigens"
-    
-    precompute_eigens(input_dir, output_dir)
+      
+    precompute_eigens(input_dir)
