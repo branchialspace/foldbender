@@ -36,15 +36,17 @@ at.nx_pyg(input_dir="", output_dir="")
 at.soap_local(input_directory="", output_directory="")
 
 # 5 (gpu)
-at.precompute_eigens(input_dir="", output_dir="")
+at.precompute_eigens(input_dir="")
 
 
 # Task specific:
-
-at.go_labels(input_directory="", output_directory="", train_terms=".tsv")
 
 at.minmax_norm(input_dir="", output_dir="")
 
 at.stratified_split(input_directory="")
 
-at.esm2_labels(embeddings_path=".npy", sequence_ids_path= ".npy", input_dir= "", output_dir= "")
+at.go_labels(input_directory="", output_directory="", train_terms=".tsv")
+
+at.delete_y(directory="")
+
+at.esm2_labels(embeddings_path=".npy", sequence_ids_path=".npy", input_dir="")
