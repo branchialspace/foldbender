@@ -7,6 +7,7 @@ from sklearn import preprocessing
 from collections import defaultdict
 import pickle
 from torch_geometric.data import Data
+from torch_geometric.utils import to_undirected
 import numpy as np
 import csv
 
@@ -156,6 +157,9 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
 
         # Construct the PyG graph
         data = Data(edge_index=edge_index, x=feat, edge_attr=edge_feat, num_nodes=num_nodes, atom_coords=atom_coords)
+
+        # Make graph undirected
+        data.edge_index, data.edge_attr = to_undirected(data.edge_index, data.edge_attr)
     
         # Save the PyTorch object to the local file system
         output_filename = f'{data_object_name}.pt'
