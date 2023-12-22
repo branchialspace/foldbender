@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import os
 from torch_geometric.data import Data
+from tqdm import tqdm
 
 def esm2_labels(embeddings_path, sequence_ids_path, input_dir):
     # Load numpy arrays from the given file paths
@@ -12,8 +13,8 @@ def esm2_labels(embeddings_path, sequence_ids_path, input_dir):
     # Create a dictionary for sequence ID to embedding mapping
     embedding_dict = {seq_id: embedding for seq_id, embedding in zip(sequence_ids, embeddings)}
 
-    # Iterate over the protein files in the input directory
-    for filename in os.listdir(input_dir):
+    # Iterate over the protein files in the input directory with a progress bar
+    for filename in tqdm(os.listdir(input_dir), desc="Processing files"):
         file_path = os.path.join(input_dir, filename)
         seq_id = filename.split('.')[0]
 
@@ -30,7 +31,6 @@ def esm2_labels(embeddings_path, sequence_ids_path, input_dir):
             print(f"Embedding not found for sequence ID: {seq_id}")
 
     print("Embeddings added to all corresponding PyG data objects in the input directory.")
-
 
 if __name__ == "__main__":
 
