@@ -2,9 +2,10 @@
 import os
 import torch
 from torch_geometric.data import Data
+from tqdm import tqdm
 
 def delete_y(directory):
-    for filename in os.listdir(directory):
+    for filename in tqdm(os.listdir(directory), desc="Processing files"):
         if filename.endswith('.pt'):
             file_path = os.path.join(directory, filename)
             data = torch.load(file_path)
