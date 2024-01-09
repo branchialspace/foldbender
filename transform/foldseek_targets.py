@@ -6,23 +6,23 @@ import pandas as pd
 # Create file_scores with foldseek command: !foldseek easy-search /content/41k_go_filtered/ /content/41k_go_filtered/ aln tmp --format-output "query,target,fident,rmsd,evalue"
 
 def foldseek_scored_clusters(file_clusters, file_scores, file_output):
-    # Read the first TSV file
+    # Read the clusters file
     df_clusters = pd.read_csv(file_clusters, sep='\t', header=None, names=['representative', 'member'])
 
     # Filter representatives present 3 or more times
     filtered_reps = df_clusters['representative'].value_counts()
     filtered_reps = filtered_reps[filtered_reps >= 3].index.tolist()
 
-    # Create a list of all unique members in the first TSV file
+    # Create a list of all unique members in the clusters file
     all_members = df_clusters['member'].unique()
 
-    # Read the second TSV file
+    # Read the similarity scores file
     df_scores = pd.read_csv(file_scores, sep='\t', header=None, names=['representative', 'member', 'score'], usecols=[0, 1, 2])
 
-    # Convert score to float32
+    # Convert scores to float32
     df_scores['score'] = df_scores['score'].astype('float32')
 
-    # Filter scores by representatives in the filtered list and members in the first TSV file
+    # Filter scores by representatives in the filtered list and members from the clusters file
     df_scores_filtered = df_scores[df_scores['representative'].isin(filtered_reps) & df_scores['member'].isin(all_members)]
 
     # Group by member and get the top 3 scores for each member
