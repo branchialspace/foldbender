@@ -45,5 +45,6 @@ if __name__ == "__main__":
 
     file_clusters = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
     file_scores = '/content/drive/MyDrive/protein-DATA/aln2.tsv'
+    file_output = '/content/foldseek_labels.tsv'
   
-    foldseek_scored_clusters(file_clusters, file_scores, 'foldseek_labels.tsv')
+    foldseek_scored_clusters(file_clusters, file_scores, file_output)
