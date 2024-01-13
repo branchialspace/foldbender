@@ -3,7 +3,7 @@ import os
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory, n_splits=8):
+def stratified_split(input_directory):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
@@ -26,21 +26,28 @@ def stratified_split(input_directory, n_splits=8):
         for label in labels:
             multilabel_format[i, label_to_index[label]] = 1
 
-    # Use MultilabelStratifiedKFold for splitting
-    mskf = MultilabelStratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    
-    indices = list(mskf.split(multilabel_format, multilabel_format))
-    
-    # Combine validation indices of first 6 folds for training, use 7th for validation and 8th for testing
-    train_indices = [idx for fold in indices[:6] for idx in fold[1]]
-    valid_indices = indices[6][1]
-    test_indices = indices[7][1]
+    # First split into 2 folds
+    mskf = MultilabelStratifiedKFold(n_splits=2, shuffle=True, random_state=42)
+    first_split_indices = next(iter(mskf.split(multilabel_format, multilabel_format)))
+
+    # Second split on the train set of the first split
+    second_split_indices = next(iter(mskf.split(multilabel_format[first_split_indices[0]], multilabel_format[first_split_indices[0]])))
+
+    # Third split on the train set of the second split
+    third_split_indices = next(iter(mskf.split(multilabel_format[second_split_indices[0]], multilabel_format[second_split_indices[0]])))
+
+    # Combine validation sets of first 2 splits to create final train indices
+    train_indices = torch.cat((first_split_indices[1], [second_split_indices[1]]))
+
+    # Validation and Test indices
+    valid_indices = [third_split_indices[0]]]
+    test_indices = [third_split_indices[1]]]
 
     # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
         'train': [file_list[idx] for idx in train_indices],
-        'valid': [file_list[idx] for idx in valid_indices],
-        'test': [file_list[idx] for idx in test_indices]
+        'valid': [file_list[first_split_indices[0][idx]] for idx in valid_indices],
+        'test': [file_list[first_split_indices[0][idx]] for idx in test_indices]
     }
 
     # Save indices to a .pt file
