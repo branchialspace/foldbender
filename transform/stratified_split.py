@@ -40,8 +40,8 @@ def stratified_split(input_directory):
     train_indices = torch.cat((first_split_indices[1], [second_split_indices[1]]))
 
     # Validation and Test indices
-    valid_indices = [third_split_indices[0]]]
-    test_indices = [third_split_indices[1]]]
+    valid_indices = [third_split_indices[0]]
+    test_indices = [third_split_indices[1]]
 
     # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
