@@ -37,11 +37,11 @@ def stratified_split(input_directory):
     third_split_indices = next(iter(mskf.split(multilabel_format[second_split_indices[0]], multilabel_format[second_split_indices[0]])))
 
     # Combine validation sets of first 2 splits to create final train indices
-    train_indices = torch.cat((first_split_indices[1], [second_split_indices[1]]))
+    train_indices = torch.cat((torch.tensor(first_split_indices[1]), torch.tensor(second_split_indices[1])))
 
     # Validation and Test indices
-    valid_indices = [third_split_indices[0]]
-    test_indices = [third_split_indices[1]]
+    valid_indices = torch.tensor(third_split_indices[0])
+    test_indices = torch.tensor(third_split_indices[1])
 
     # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
