@@ -43,7 +43,7 @@ at.precompute_eigens(input_dir="")
 
 at.minmax_norm(input_dir="", output_dir="")
 
-at.stratified_split(input_directory="")
+at.GO_split(input_directory="")
 
 at.go_labels(input_directory="", output_directory="", train_terms=".tsv")
 
