@@ -5,7 +5,10 @@ import pandas as pd
 # Create file_clusters with foldseek command: !foldseek easy-cluster /content/41k_go_filtered/ res clust
 # Create file_scores with foldseek command: !foldseek easy-search /content/41k_go_filtered/ /content/41k_go_filtered/ aln tmp --format-output "query,target,fident,rmsd,evalue"
 
-def foldseek_scored_clusters(file_clusters, file_scores, file_output):
+def foldseek_targets(file_clusters, file_scores):
+    # Define the output file name
+    file_output = file_clusters.rsplit('.', 1)[0] + '_labels.tsv'
+
     # Read the clusters file
     df_clusters = pd.read_csv(file_clusters, sep='\t', header=None, names=['representative', 'member'])
 
@@ -45,6 +48,5 @@ if __name__ == "__main__":
 
     file_clusters = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
     file_scores = '/content/drive/MyDrive/protein-DATA/aln2.tsv'
-    file_output = '/content/foldseek_labels.tsv'
   
-    foldseek_scored_clusters(file_clusters, file_scores, file_output)
+    foldseek_targets(file_clusters, file_scores)
