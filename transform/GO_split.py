@@ -1,4 +1,4 @@
-# Multi-label stratified split for train, val, test sets
+# Multi-label stratified split for CAFA Gene Ontology Annotations
 import os
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
