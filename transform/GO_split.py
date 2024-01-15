@@ -3,7 +3,7 @@ import os
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-def stratified_split(input_directory):
+def GO_split(input_directory):
     # Define the path for saving indices
     indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
 
@@ -60,4 +60,4 @@ if __name__ == "__main__":
     
     input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
     
-    indices_dict = stratified_split(input_directory)
+    indices_dict = GO_split(input_directory)
