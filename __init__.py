@@ -9,5 +9,6 @@ from .transform.atomic_posenc import soap_local
 from .transform.eigen_posenc import precompute_eigens
 from .transform.minmax_norm import minmax_norm
 from .transform.GO_split import go_split
-from .transform.foldseek_targets import foldseek_scored_clusters
+from .transform.foldseek_split import foldseek_split
+from .transform.foldseek_targets import foldseek_targets
 from .utils.delete_y import delete_y
