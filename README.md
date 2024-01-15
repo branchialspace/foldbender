@@ -50,3 +50,9 @@ at.go_labels(input_directory="", output_directory="", train_terms=".tsv")
 at.delete_y(directory="")
 
 at.esm2_labels(embeddings_path=".npy", sequence_ids_path=".npy", input_dir="")
+
+at.foldseek_targets(file_clusters=".tsv", file_scores=".tsv")
+
+at.foldseek_labels(input_directory="", foldseek_labels=".tsv")
+
+at.foldseek_split(input_directory="")
