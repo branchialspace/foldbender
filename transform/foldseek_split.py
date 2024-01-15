@@ -1,4 +1,4 @@
-# Multi-label stratified split for Foldseek regression task: Binary bool mask for top n cluster scores
+# Multi-label stratified split for Foldseek regression task: bool mask for top n cluster scores
 import os
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
