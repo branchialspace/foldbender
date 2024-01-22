@@ -1,9 +1,10 @@
 # Foldseek Multiclass Classification Labels
 import torch
 import pandas as pd
+import numpy as np
 import os
 from torch_geometric.data import Data
-import tqdm
+from tqdm import tqdm
 
 
 def foldseek_labels_multiclass(input_directory, foldseek_labels):
