@@ -13,7 +13,14 @@ def foldseek_labels_multiclass(input_directory, foldseek_labels):
 
     # Identify all unique terms
     unique_terms = df['Term'].unique()
-    term_to_index = {term: i for i, term in enumerate(unique_terms)}
+    
+    # Define a unique label for entries with 0 terms
+    no_term_label = 'NoTerm'
+
+    # Add the unique label to the list of terms
+    unique_terms_with_no_term = np.append(unique_terms, no_term_label)
+
+    term_to_index = {term: i for i, term in enumerate(unique_terms_with_no_term)}
 
     # List all files in the input directory
     all_files = os.listdir(input_directory)
@@ -25,8 +32,8 @@ def foldseek_labels_multiclass(input_directory, foldseek_labels):
             file_path = os.path.join(input_directory, filename)
             data_obj = torch.load(file_path)
 
-            # Initialize y vector for all unique terms
-            y = torch.zeros(len(unique_terms), dtype=torch.bool)
+            # Initialize y with the unique label for 0 terms
+            y = torch.tensor([term_to_index[no_term_label]], dtype=torch.long)
 
             if entry_id in df['EntryID'].values:
                 # Filter the dataframe for the current entry
@@ -36,9 +43,9 @@ def foldseek_labels_multiclass(input_directory, foldseek_labels):
                 max_row = entry_df.loc[entry_df['Value'].idxmax()]
                 max_term_index = term_to_index[max_row['Term']]
 
-                # Set the corresponding index in y to 1
-                y[max_term_index] = 1
-            # If the entry_id is not in foldseek_labels, y remains a zero vector
+                # Set y to the index of the term with the highest value
+                y = torch.tensor([max_term_index], dtype=torch.long)
+
             data_obj.y = y
             # Save the modified data object back to the same location
             torch.save(data_obj, file_path)
