@@ -12,14 +12,17 @@ def foldseek_labels_multiclass(input_directory, foldseek_labels):
     df = pd.read_csv(foldseek_labels, sep='\t', header=None, names=['Term', 'EntryID_with_extra', 'Value'])
     df['EntryID'] = df['EntryID_with_extra'].apply(lambda x: x.split('.')[0])
 
-    # Identify all unique terms
-    unique_terms = df['Term'].unique()
-    
+    # Find the term with the highest value for each entry
+    max_terms_df = df.loc[df.groupby('EntryID')['Value'].idxmax()]
+
+    # Get unique terms that are highest for their entries
+    unique_max_terms = max_terms_df['Term'].unique()
+
     # Define a unique label for entries with 0 terms
     no_term_label = 'NoTerm'
 
     # Add the unique label to the list of terms
-    unique_terms_with_no_term = np.append(unique_terms, no_term_label)
+    unique_terms_with_no_term = np.append(unique_max_terms, no_term_label)
 
     term_to_index = {term: i for i, term in enumerate(unique_terms_with_no_term)}
 
@@ -36,13 +39,10 @@ def foldseek_labels_multiclass(input_directory, foldseek_labels):
             # Initialize y with the unique label for 0 terms
             y = torch.tensor([term_to_index[no_term_label]], dtype=torch.long)
 
-            if entry_id in df['EntryID'].values:
-                # Filter the dataframe for the current entry
-                entry_df = df[df['EntryID'] == entry_id]
-
-                # Find the term with the highest value for this entry
-                max_row = entry_df.loc[entry_df['Value'].idxmax()]
-                max_term_index = term_to_index[max_row['Term']]
+            if entry_id in max_terms_df['EntryID'].values:
+                # Get the term with the highest value for this entry
+                max_term = max_terms_df[max_terms_df['EntryID'] == entry_id]['Term'].iloc[0]
+                max_term_index = term_to_index[max_term]
 
                 # Set y to the index of the term with the highest value
                 y = torch.tensor([max_term_index], dtype=torch.long)
