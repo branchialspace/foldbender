@@ -5,15 +5,17 @@ import torch
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
 
-
-def filter_encode_clusters(cluster_dict):
-    # Combine small clusters
+def filter_encode_clusters(cluster_dict, unlisted_files):
+    # Combine small clusters and unlisted files
     combined_cluster = []
     clusters_to_remove = []
     for cluster, members in cluster_dict.items():
         if len(members) < 3:
             combined_cluster.extend(members)
             clusters_to_remove.append(cluster)
+    
+    # Add unlisted files to the combined cluster
+    combined_cluster.extend(unlisted_files)
 
     # Remove the small clusters and add the 'combined' cluster
     for cluster in clusters_to_remove:
@@ -30,29 +32,34 @@ def filter_encode_clusters(cluster_dict):
 
     return encoded_cluster_dict
 
-
 def foldseek_multiclass_labels(input_directory, tsv_file_path):
     # Read and process TSV
     df = pd.read_csv(tsv_file_path, sep='\t', header=None)
     cluster_dict = {}
+    listed_files = set()
     for cluster, member in zip(df[0], df[1]):
-        cluster_dict.setdefault(cluster, []).append(member)
+        base_name = os.path.splitext(member)[0]  # Strip the extension
+        cluster_dict.setdefault(cluster, []).append(base_name)
+        listed_files.add(base_name)
+
+    # Identify unlisted files
+    unlisted_files = [os.path.splitext(f)[0] for f in os.listdir(input_directory) if f.endswith('.pt') and os.path.splitext(f)[0] not in listed_files]
 
     # Encode and filter clusters
-    encoded_cluster_dict = filter_encode_clusters(cluster_dict)
+    encoded_cluster_dict = filter_encode_clusters(cluster_dict, unlisted_files)
 
     # Modify data objects
     for filename in tqdm(os.listdir(input_directory), desc="Processing Files"):
         if filename.endswith('.pt'):
+            base_name = os.path.splitext(filename)[0]
             data_path = os.path.join(input_directory, filename)
             data = torch.load(data_path)
 
             for cluster_label, members in encoded_cluster_dict.items():
-                if filename in members:
+                if base_name in members:
                     data.y = torch.tensor([cluster_label], dtype=torch.long)
                     torch.save(data, data_path)
                     break
-
 
 if __name__ == "__main__":
 
