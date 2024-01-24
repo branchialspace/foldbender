@@ -64,6 +64,6 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
 if __name__ == "__main__":
 
     tsv_file_path = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
-    directory_path = '/content/41k_prot_foldseek'
+    input_directory = '/content/41k_prot_foldseek'
 
     foldseek_multiclass_labels(input_directory, tsv_file_path)
