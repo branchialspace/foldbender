@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def filter_encode_clusters(cluster_dict):
-    # First, combine small clusters
+    # Combine small clusters
     combined_cluster = []
     clusters_to_remove = []
     for cluster, members in cluster_dict.items():
@@ -22,7 +22,7 @@ def filter_encode_clusters(cluster_dict):
     if combined_cluster:
         cluster_dict['combined'] = combined_cluster
 
-    # Now, encode all clusters including the 'combined' cluster
+    # Encode all clusters including the 'combined' cluster
     label_encoder = LabelEncoder()
     encoded_labels = label_encoder.fit_transform(list(cluster_dict.keys()))
 
