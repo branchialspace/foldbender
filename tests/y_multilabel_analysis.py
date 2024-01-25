@@ -28,7 +28,6 @@ def analyze_pyg_data(directory_path):
 
     return count_all_zeros, count_no_y_or_diff_shape
 
-# Example usage
 directory_path = '/content/41k_prot_go_1'
 count_zeros, count_no_y_or_diff_shape = analyze_pyg_data(directory_path)
 print(f"Number of .pt files where all y values are zeros: {count_zeros}")
