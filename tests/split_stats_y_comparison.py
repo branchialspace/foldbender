@@ -46,7 +46,6 @@ def analyze_directory(directory_path, split_file_path):
     print(f"Files in splits but missing in directory: {missing_in_directory}")
 
 
-# Example usage
 directory_path = '/content/41k_prot_go'
 split_file_path = '/content/drive/MyDrive/protein-DATA/41k_prot_foldseek_split_indices.pt'
 analyze_directory(directory_path, split_file_path)
