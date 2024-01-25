@@ -24,13 +24,20 @@ def filter_encode_clusters(cluster_dict, unlisted_files):
     if combined_cluster:
         cluster_dict['combined'] = combined_cluster
 
-    # Encode all clusters including the 'combined' cluster
-    label_encoder = LabelEncoder()
-    encoded_labels = label_encoder.fit_transform(list(cluster_dict.keys()))
+    # Manually assign 0 to the 'combined' cluster
+    encoded_cluster_dict = {'combined': 0}
 
-    encoded_cluster_dict = {label: cluster_dict[cluster] for label, cluster in zip(encoded_labels, cluster_dict.keys())}
+    # Prepare remaining clusters for label encoding
+    remaining_clusters = {k: v for k, v in cluster_dict.items() if k != 'combined'}
 
-    return encoded_cluster_dict
+    # Encode remaining clusters starting from 1
+    if remaining_clusters:
+        label_encoder = LabelEncoder()
+        # Offset the labels by 1
+        encoded_labels = label_encoder.fit_transform(list(remaining_clusters.keys())) + 1
+        encoded_cluster_dict.update({label: remaining_clusters[cluster] for label, cluster in zip(encoded_labels, remaining_clusters.keys())})
+
+    return {v: k for k, v in encoded_cluster_dict.items()}
 
 def foldseek_multiclass_labels(input_directory, tsv_file_path):
     # Read and process TSV
