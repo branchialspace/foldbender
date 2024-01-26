@@ -41,8 +41,13 @@ def foldseek_multiclass_split(input_directory, valid_size=0.3, test_size=0.3, ra
             adjusted_valid_test_indices.append(idx)
 
     # Further stratified split the valid_test set into validation and test sets
+    valid_test_labels = [labels[i] for i in adjusted_valid_test_indices]
     sss = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
-    valid_indices, test_indices = next(sss.split([file_paths[i] for i in adjusted_valid_test_indices], [labels[i] for i in adjusted_valid_test_indices]))
+    valid_indices, test_indices = next(sss.split([file_paths[i] for i in adjusted_valid_test_indices], [labels[i] for i in valid_test_labels]))
+
+    # Convert these indices back to the original indices
+    valid_indices = [adjusted_valid_test_indices[i] for i in valid_indices]
+    test_indices = [adjusted_valid_test_indices[i] for i in test_indices]
 
     # Assign file names to train, validation, and test sets based on the split indices
     indices_dict = {
