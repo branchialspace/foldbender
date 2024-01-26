@@ -13,43 +13,23 @@ def filter_encode_clusters(cluster_dict, unlisted_files, input_directory):
         if len(cluster_dict[cluster]) == 0:
             del cluster_dict[cluster]
 
-    # Combine small clusters and unlisted files
-    combined_cluster = []
+    # Combine small clusters and unlisted files into a single list for deletion
+    files_to_delete = []
     clusters_to_remove = []
     for cluster, members in cluster_dict.items():
         if len(members) < 3:
-            combined_cluster.extend(members)
+            files_to_delete.extend(members)
             clusters_to_remove.append(cluster)
 
-    # Add unlisted files to the combined cluster
-    combined_cluster.extend(unlisted_files)
+    # Add unlisted files to the deletion list
+    files_to_delete.extend(unlisted_files)
 
-    # Remove the small clusters and add the 'combined' cluster
+    # Remove the small clusters
     for cluster in clusters_to_remove:
         cluster_dict.pop(cluster)
 
-    if combined_cluster:
-        cluster_dict['combined'] = combined_cluster
-
-    # Manually assign 0 to the 'combined' cluster
-    encoded_cluster_dict = {'combined': 0}
-
-    # Prepare remaining clusters for label encoding
-    remaining_clusters = {k: v for k, v in cluster_dict.items() if k != 'combined'}
-
-    # Encode remaining clusters starting from 1
-    if remaining_clusters:
-        label_encoder = LabelEncoder()
-        encoded_labels = label_encoder.fit_transform(list(remaining_clusters.keys())) + 1
-        encoded_cluster_dict.update({cluster: label for cluster, label in zip(remaining_clusters.keys(), encoded_labels)})
-
-    # Map each member file to its cluster label
-    file_to_label_map = {}
-    for cluster, members in cluster_dict.items():
-        for member in members:
-            file_to_label_map[member] = encoded_cluster_dict[cluster]
-
-    return file_to_label_map
+    # Return the list of files to delete
+    return files_to_delete, cluster_dict
 
 def foldseek_multiclass_labels(input_directory, tsv_file_path):
     # Read and process TSV
@@ -64,8 +44,25 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
     # Identify unlisted files
     unlisted_files = [os.path.splitext(f)[0] for f in os.listdir(input_directory) if f.endswith('.pt') and os.path.splitext(f)[0] not in listed_files]
 
-    # Encode and filter clusters
-    file_to_label_map = filter_encode_clusters(cluster_dict, unlisted_files, input_directory)
+    # Get files to delete and filter & encode remaining clusters
+    files_to_delete, filtered_cluster_dict = filter_encode_clusters(cluster_dict, unlisted_files, input_directory)
+
+    # Delete files in the combined cluster
+    for filename in files_to_delete:
+        file_path = os.path.join(input_directory, filename + '.pt')
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+    # Prepare clusters for label encoding
+    label_encoder = LabelEncoder()
+    encoded_labels = label_encoder.fit_transform(list(filtered_cluster_dict.keys()))
+    encoded_cluster_dict = {cluster: label for cluster, label in zip(filtered_cluster_dict.keys(), encoded_labels)}
+
+    # Map each member file to its cluster label
+    file_to_label_map = {}
+    for cluster, members in filtered_cluster_dict.items():
+        for member in members:
+            file_to_label_map[member] = encoded_cluster_dict[cluster]
 
     # Modify data objects
     for filename in tqdm(os.listdir(input_directory), desc="Processing Files"):
@@ -80,7 +77,7 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
                 torch.save(data, data_path)
 
 if __name__ == "__main__":
-
+    
     tsv_file_path = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
     input_directory = '/content/41k_prot_foldseek'
 
