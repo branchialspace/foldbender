@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from collections import Counter
 
 
-def foldseek_multiclass_split(input_directory, valid_size=0.2, test_size=0.5, random_state=42):
+def foldseek_multiclass_split(input_directory, valid_size=0.3, test_size=0.3, random_state=42):
 
     # Define the path for saving indices in the parent directory of input_directory
     indices_file_path = os.path.join(os.path.dirname(input_directory), os.path.basename(input_directory) + "_split_indices.pt")
