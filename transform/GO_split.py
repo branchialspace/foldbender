@@ -3,11 +3,6 @@ import os
 import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
-# Multi-label stratified split for CAFA Gene Ontology Annotations
-import os
-import torch
-from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
-
 
 def go_split(input_directory):
     # Define the path for saving indices
