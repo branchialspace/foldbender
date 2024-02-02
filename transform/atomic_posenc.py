@@ -32,7 +32,7 @@ def soap_local(input_directory, output_directory):
             soap_descriptors = soap.create(system)
 
             # Ensure the SOAP descriptors are in the correct shape for concatenation
-            soap_descriptors = torch.tensor(soap_descriptors, dtype=torch.float32)
+            soap_descriptors = torch.tensor(soap_descriptors, dtype=torch.float16)
 
             # Concatenate the SOAP descriptors with the 'x' tensor
             data['x'] = torch.cat((features_x, soap_descriptors), dim=1)
