@@ -14,7 +14,7 @@ def esm2_labels(embeddings_path, sequence_ids_path, input_dir):
     embedding_dict = {seq_id: embedding for seq_id, embedding in zip(sequence_ids, embeddings)}
 
     # Iterate over the protein files in the input directory with a progress bar
-    for filename in tqdm(os.listdir(input_dir), desc="Processing files"):
+    for filename in tqdm(os.listdir(input_dir), desc="Assigning ESM2 embedding labels as y"):
         file_path = os.path.join(input_dir, filename)
         seq_id = filename.split('.')[0]
 
