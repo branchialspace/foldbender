@@ -3,6 +3,7 @@ import os
 import torch
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 def minmax_norm(input_dir):
     stats = os.path.join(os.path.dirname(input_dir), f"{os.path.basename(input_dir)}_stats.csv")
@@ -15,7 +16,7 @@ def minmax_norm(input_dir):
     global_edge_attr_max = None
 
     # First pass to find the global min and max for each feature
-    for file_name in os.listdir(input_dir):
+    for file_name in tqdm(os.listdir(input_dir), desc="Finding global min and max for each feature"):
         if file_name.endswith('.pt'):
             data_path = os.path.join(input_dir, file_name)
             data_object = torch.load(data_path)
@@ -47,7 +48,7 @@ def minmax_norm(input_dir):
     accumulated_edge_attr_maxs = []
 
     # Second pass to scale the data using the global min and max
-    for file_name in os.listdir(input_dir):
+    for file_name in tqdm(os.listdir(input_dir), desc="Scaling the data using the global min and max"): 
         if file_name.endswith('.pt'):
             data_path = os.path.join(input_dir, file_name)
             data_object = torch.load(data_path)
