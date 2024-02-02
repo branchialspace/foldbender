@@ -4,10 +4,9 @@ import torch
 import numpy as np
 import pandas as pd
 
-def minmax_norm(input_dir, output_dir):
-    os.makedirs(output_dir, exist_ok=True)
-    stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_stats.csv")
-    norm_stats = os.path.join(os.path.dirname(output_dir), f"{os.path.basename(output_dir)}_norm_stats.csv")
+def minmax_norm(input_dir):
+    stats = os.path.join(os.path.dirname(input_dir), f"{os.path.basename(input_dir)}_stats.csv")
+    norm_stats = os.path.join(os.path.dirname(input_dir), f"{os.path.basename(input_dir)}_norm_stats.csv")
 
     # Initialize global min and max arrays
     global_x_min = None
@@ -68,8 +67,7 @@ def minmax_norm(input_dir, output_dir):
             accumulated_edge_attr_mins.append(data_object.edge_attr.min(dim=0).values)
             accumulated_edge_attr_maxs.append(data_object.edge_attr.max(dim=0).values)
             
-            output_path = os.path.join(output_dir, file_name)
-            torch.save(data_object, output_path)
+            torch.save(data_object, data_path)
 
     global_rounded_x_min = torch.stack(accumulated_x_mins).min(dim=0).values.numpy()
     global_rounded_x_max = torch.stack(accumulated_x_maxs).max(dim=0).values.numpy()
