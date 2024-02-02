@@ -7,7 +7,7 @@ from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
 
-def soap_local(input_dir):
+def soap_local(input_dir, r_cut=3, n_max=3, l_max=3, sigma=0.1):
     # Iterate over the .pt files in the directory
     for filename in os.listdir(input_dir):
         if filename.endswith('.pt'):
@@ -21,7 +21,7 @@ def soap_local(input_dir):
             num_atoms = len(atom_coords)
 
             # Initialize the SOAP descriptor
-            soap = SOAP(species=["H"], periodic=False, r_cut=3, n_max=3, l_max=3, sigma=0.1)
+            soap = SOAP(species=["H"], periodic=False, r_cut=r_cut, n_max=n_max, l_max=l_max, sigma=sigma)
 
             # Create an ASE Atoms object
             system = Atoms(numbers=np.ones(num_atoms), positions=atom_coords.numpy())
@@ -47,4 +47,4 @@ if __name__ == "__main__":
 
     input_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
     
-    soap_local(input_dir)
+    soap_local(input_dir, r_cut=3, n_max=3, l_max=3, sigma=0.1)
