@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.utils import is_undirected, to_undirected, get_laplacian
       
-def compute_posenc_stats(data, is_undirected):
+def compute_posenc_stats(data, is_undirected, max_freqs):
       """Compute positional encodings for the given graph and store them in the data object.
       
       Args:
@@ -36,7 +36,7 @@ def compute_posenc_stats(data, is_undirected):
       L[edge_index[0], edge_index[1]] = edge_weight
       
       # Compute eigenvalues and eigenvectors
-      max_freqs = 16
+      max_freqs = max_freqs
       eigvec_norm = "L2"
       evals, evects = torch.linalg.eigh(L)
       EigVals, EigVecs = get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm)
@@ -100,7 +100,7 @@ def eigvec_normalizer(EigVecs, EigVals, normalization="L2", eps=1e-12):
       
       return EigVecs
 
-def precompute_eigens(input_dir, sample_size=10):
+def precompute_eigens(input_dir, max_freqs=16):
     """Process each .pt PyG Data object in the input directory in place.
     
     Args:
@@ -111,6 +111,7 @@ def precompute_eigens(input_dir, sample_size=10):
     dataset_files = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
     
     # Sample the dataset to determine if graphs are undirected
+    sample_size = 10
     sample_files = dataset_files[:sample_size]
     sample_graphs = [torch.load(os.path.join(input_dir, f)) for f in sample_files]
     is_undirected = all(d.is_undirected() for d in sample_graphs)
@@ -119,11 +120,11 @@ def precompute_eigens(input_dir, sample_size=10):
     for filename in dataset_files:
         data_path = os.path.join(input_dir, filename)
         data = torch.load(data_path)
-        compute_posenc_stats(data, is_undirected)
+        compute_posenc_stats(data, is_undirected, max_freqs)
         torch.save(data, data_path)
 
 if __name__ == "__main__":
 
     input_dir = "/content/drive/MyDrive/protein-DATA/sample-final"
       
-    precompute_eigens(input_dir)
+    precompute_eigens(input_dir, max_freqs=16)
