@@ -53,10 +53,10 @@ def minmax_norm(input_dir, output_dir):
             data_path = os.path.join(input_dir, file_name)
             data_object = torch.load(data_path)
 
-            data_object.x = (data_object.x - torch.tensor(global_x_min, dtype=torch.float32)) / \
-                            (torch.tensor(global_x_max, dtype=torch.float32) - torch.tensor(global_x_min, dtype=torch.float32))
-            data_object.edge_attr = (data_object.edge_attr - torch.tensor(global_edge_attr_min, dtype=torch.float32)) / \
-                                    (torch.tensor(global_edge_attr_max, dtype=torch.float32) - torch.tensor(global_edge_attr_min, dtype=torch.float32))
+            data_object.x = (data_object.x - torch.tensor(global_x_min, dtype=torch.float16)) / \
+                            (torch.tensor(global_x_max, dtype=torch.float16) - torch.tensor(global_x_min, dtype=torch.float16))
+            data_object.edge_attr = (data_object.edge_attr - torch.tensor(global_edge_attr_min, dtype=torch.float16)) / \
+                                    (torch.tensor(global_edge_attr_max, dtype=torch.float16) - torch.tensor(global_edge_attr_min, dtype=torch.float16))
 
             data_object.x[torch.isnan(data_object.x)] = 0.0
             data_object.x = torch.round(data_object.x * 1000000) / 1000000
