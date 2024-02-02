@@ -5,9 +5,9 @@ import torch
 from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
 
-def filter_encode_clusters(cluster_dict, unlisted_files, input_directory):
+def filter_encode_clusters(cluster_dict, unlisted_files, input_dir):
     # Filter cluster members based on files in the input directory
-    available_files = set([os.path.splitext(f)[0] for f in os.listdir(input_directory) if f.endswith('.pt')])
+    available_files = set([os.path.splitext(f)[0] for f in os.listdir(input_dir) if f.endswith('.pt')])
     for cluster in list(cluster_dict.keys()):
         cluster_dict[cluster] = [member for member in cluster_dict[cluster] if member in available_files]
         if len(cluster_dict[cluster]) == 0:
@@ -31,9 +31,9 @@ def filter_encode_clusters(cluster_dict, unlisted_files, input_directory):
     # Return the list of files to delete
     return files_to_delete, cluster_dict
 
-def foldseek_multiclass_labels(input_directory, tsv_file_path):
+def foldseek_multiclass_labels(input_dir, foldseek_targets):
     # Read and process TSV
-    df = pd.read_csv(tsv_file_path, sep='\t', header=None)
+    df = pd.read_csv(foldseek_targets, sep='\t', header=None)
     cluster_dict = {}
     listed_files = set()
     for cluster, member in zip(df[0], df[1]):
@@ -42,14 +42,14 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
         listed_files.add(base_name)
 
     # Identify unlisted files
-    unlisted_files = [os.path.splitext(f)[0] for f in os.listdir(input_directory) if f.endswith('.pt') and os.path.splitext(f)[0] not in listed_files]
+    unlisted_files = [os.path.splitext(f)[0] for f in os.listdir(input_dir) if f.endswith('.pt') and os.path.splitext(f)[0] not in listed_files]
 
     # Get files to delete and filter & encode remaining clusters
-    files_to_delete, filtered_cluster_dict = filter_encode_clusters(cluster_dict, unlisted_files, input_directory)
+    files_to_delete, filtered_cluster_dict = filter_encode_clusters(cluster_dict, unlisted_files, input_dir)
 
     # Delete files in the combined cluster
     for filename in files_to_delete:
-        file_path = os.path.join(input_directory, filename + '.pt')
+        file_path = os.path.join(input_dir, filename + '.pt')
         if os.path.exists(file_path):
             os.remove(file_path)
 
@@ -65,10 +65,10 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
             file_to_label_map[member] = encoded_cluster_dict[cluster]
 
     # Modify data objects
-    for filename in tqdm(os.listdir(input_directory), desc="Assigning Foldseek cluster multiclass labels as y"):
+    for filename in tqdm(os.listdir(input_dir), desc="Assigning Foldseek cluster multiclass labels as y"):
         if filename.endswith('.pt'):
             base_name = os.path.splitext(filename)[0]
-            data_path = os.path.join(input_directory, filename)
+            data_path = os.path.join(input_dir, filename)
             data = torch.load(data_path)
 
             if base_name in file_to_label_map:
@@ -78,7 +78,7 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
 
 if __name__ == "__main__":
     
-    tsv_file_path = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
-    input_directory = '/content/41k_prot_foldseek'
+    foldseek_targets = '/content/drive/MyDrive/protein-DATA/res_cluster.tsv'
+    input_dir = '/content/41k_prot_foldseek'
 
-    foldseek_multiclass_labels(input_directory, tsv_file_path)
+    foldseek_multiclass_labels(input_dir, foldseek_targets)
