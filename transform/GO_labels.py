@@ -29,7 +29,7 @@ def go_labels(input_directory, output_directory, train_terms):
                 data_obj = torch.load(os.path.join(input_directory, filename))
 
                 # Create a binary vector for the terms associated with this entry
-                y = torch.zeros(len(unique_terms), dtype=torch.float16)
+                y = torch.zeros(len(unique_terms), dtype=torch.bool)
                 entry_terms = df[df['EntryID'] == entry_id]['term'].values
                 for term in entry_terms:
                     index = term_to_index[term]
