@@ -65,7 +65,7 @@ def foldseek_multiclass_labels(input_directory, tsv_file_path):
             file_to_label_map[member] = encoded_cluster_dict[cluster]
 
     # Modify data objects
-    for filename in tqdm(os.listdir(input_directory), desc="Processing Files"):
+    for filename in tqdm(os.listdir(input_directory), desc="Assigning Foldseek cluster multiclass labels"):
         if filename.endswith('.pt'):
             base_name = os.path.splitext(filename)[0]
             data_path = os.path.join(input_directory, filename)
