@@ -24,16 +24,16 @@ pip install dscribe
 import alphafold_transform as at
 
 # 1
-at.fasta_alpha(input_fasta=".fasta", base_directory="")
+at.fasta_alpha(input_fasta=".fasta", input_dir="")
 
 # 2
-at.alpha_nx(input_directory="", output_directory="")
+at.alpha_nx(input_dir="", output_dir="")
 
 # 3
 at.nx_pyg(input_dir="", output_dir="")
 
 # 4
-at.soap_local(input_directory="", output_directory="")
+at.soap_local(input_dir="", r_cut=3, n_max=3, l_max=3, sigma=0.1)
 
 # 5 (gpu)
 at.precompute_eigens(input_dir="")
@@ -41,18 +41,18 @@ at.precompute_eigens(input_dir="")
 
 # Task specific:
 
-at.minmax_norm(input_dir="", output_dir="")
+at.minmax_norm(input_dir="")
 
-at.go_split(input_directory="")
+at.go_split(input_dir="")
 
-at.go_labels(input_directory="", output_directory="", train_terms=".tsv")
-
-at.delete_y(directory="")
+at.go_labels(input_dir="", train_terms=".tsv")
 
 at.esm2_labels(embeddings_path=".npy", sequence_ids_path=".npy", input_dir="")
 
 at.foldseek_targets(file_clusters=".tsv", file_scores=".tsv")
 
-at.foldseek_labels(input_directory="", foldseek_labels=".tsv")
+at.foldseek_multiclass_labels(input_dir="", foldseek_targets=".tsv")
 
-at.foldseek_split(input_directory="")
+at.foldseek_regression_labels(input_dir="", foldseek_targets=".tsv")
+
+at.foldseek_multiclass_split(input_dir="", valid_size=0.3, test_size=0.3, random_state=42)
