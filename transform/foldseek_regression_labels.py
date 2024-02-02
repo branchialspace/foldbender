@@ -6,7 +6,7 @@ from torch_geometric.data import Data
 from tqdm import tqdm
 
 
-def foldseek_labels_regression(input_directory, foldseek_labels):
+def foldseek_regression_labels(input_directory, foldseek_labels):
     # Load the foldseek_labels.tsv file and parse it
     df = pd.read_csv(foldseek_labels, sep='\t', header=None, names=['Term', 'EntryID_with_extra', 'Value'])
     df['EntryID'] = df['EntryID_with_extra'].apply(lambda x: x.split('.')[0])
@@ -46,4 +46,4 @@ if __name__ == "__main__":
     input_directory = "/content/drive/MyDrive/protein-DATA/sample"
     foldseek_labels = ".tsv"
     
-    foldseek_labels_regression(input_directory, foldseek_labels)
+    foldseek_regression_labels(input_directory, foldseek_labels)
