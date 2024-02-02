@@ -7,14 +7,12 @@ from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
 
-def soap_local(input_directory, output_directory):
-    os.makedirs(output_directory, exist_ok=True)
-
+def soap_local(input_dir):
     # Iterate over the .pt files in the directory
-    for filename in os.listdir(input_directory):
+    for filename in os.listdir(input_dir):
         if filename.endswith('.pt'):
            # Load the PyTorch Geometric Data object
-            file_path = os.path.join(input_directory, filename)
+            file_path = os.path.join(input_dir, filename)
             data = torch.load(file_path)
 
             # Retrieve the atom coordinates and existing 'x' tensor
@@ -41,14 +39,12 @@ def soap_local(input_directory, output_directory):
             del data['atom_coords']
 
             # Save the updated data object
-            output_file_path = os.path.join(output_directory, filename)
-            torch.save(data, output_file_path)
+            torch.save(data, file_path)
 
-    print(f"All local SOAP descriptors calculated, appended to 'x' and saved to {output_directory}.")
+    print(f"All local SOAP descriptors calculated, appended to 'x' and saved to {input_dir}.")
 
 if __name__ == "__main__":
 
-    input_directory = '/content/drive/MyDrive/protein-DATA/sample-normalized'
-    output_directory = '/content/drive/MyDrive/protein-DATA/sample-atomic-encoded'
+    input_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
     
-    soap_local(input_directory, output_directory)
+    soap_local(input_dir)
