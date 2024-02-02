@@ -8,6 +8,7 @@ import networkx as nx
 from rdkit import Chem
 from rdkit.Chem import rdMolTransforms
 from Bio.PDB import PDBParser, DSSP
+from tqdm import tqdm
 
 def protein_molecule_graphs(input_directory, output_directory, file_name, include_pae=False):
     pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
@@ -216,7 +217,8 @@ def alpha_nx(input_directory, output_directory, include_pae=False, max_workers=N
     # Use ProcessPoolExecutor to process files in parallel
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
         # Map the protein_molecule_graphs function to the tasks
-        results = list(executor.map(process_file_wrapper, tasks))
+        # results = list(executor.map(process_file_wrapper, tasks))
+        results = list(tqdm(executor.map(process_file_wrapper, tasks), total=len(tasks), desc="Processing PDB Files into NetworkX Graphs"))
 
 if __name__ == "__main__":
     
