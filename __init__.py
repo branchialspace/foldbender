@@ -7,7 +7,7 @@ from .transform.foldseek_regression_labels import foldseek_regression_labels
 from .transform.foldseek_multiclass_labels import foldseek_multiclass_labels
 from .transform.foldseek_multiclass_split import foldseek_multiclass_split
 from .transform.alphafold_dataset import Alphafold
-from .transform.atomic_posenc import soap_local
+from .transform.soap_posenc import soap_local
 from .transform.eigen_posenc import precompute_eigens
 from .transform.minmax_norm import minmax_norm
 from .transform.GO_split import go_split
