@@ -4,9 +4,10 @@ import os
 import requests
 import time
 import json
+from tqdm import tqdm
 
-def retrieve_files(input_fasta, base_directory, existing_files, include_pae, delay=0.1, max_retries=5):
-    for record in SeqIO.parse(input_fasta, 'fasta'):
+def retrieve_files(input_fasta, input_dir, existing_files, include_pae, delay=0.1, max_retries=5):
+    for record in tqdm(SeqIO.parse(input_fasta, 'fasta'), desc="Retrieving Proteins"):
         uniprot_id = record.id
 
         # Skip if already processed
@@ -16,8 +17,8 @@ def retrieve_files(input_fasta, base_directory, existing_files, include_pae, del
         pdb_file_name = f'{uniprot_id}.pdb'
         pae_file_name = f'{uniprot_id}.json'
 
-        pdb_file_path = os.path.join(base_directory, pdb_file_name)
-        pae_file_path = os.path.join(base_directory, pae_file_name)
+        pdb_file_path = os.path.join(input_dir, pdb_file_name)
+        pae_file_path = os.path.join(input_dir, pae_file_name)
 
         # Retrieve PDB, JSON file
         pdb_url = f'https://alphafold.ebi.ac.uk/files/AF-{uniprot_id}-F1-model_v4.pdb'
@@ -59,15 +60,15 @@ def retrieve_file(url, file_path, file_type, delay, max_retries):
             break
     time.sleep(delay)
 
-def fasta_alpha(input_fasta, base_directory, max_retries=10, include_pae=False):
-    os.makedirs(base_directory, exist_ok=True)
-    existing_files = {f.split('.')[0] for f in os.listdir(base_directory) if f.endswith('.pdb') or f.endswith('.json')}
+def fasta_alpha(input_fasta, input_dir, max_retries=10, include_pae=False):
+    os.makedirs(input_dir, exist_ok=True)
+    existing_files = {f.split('.')[0] for f in os.listdir(input_dir) if f.endswith('.pdb') or f.endswith('.json')}
     retries = 0
     success = False
 
     while not success and retries < max_retries:
         try:
-            retrieve_files(input_fasta, base_directory, existing_files, include_pae)
+            retrieve_files(input_fasta, input_dir, existing_files, include_pae)
             success = True
         except Exception as e:
             retries += 1
@@ -82,6 +83,6 @@ def fasta_alpha(input_fasta, base_directory, max_retries=10, include_pae=False):
 if __name__ == "__main__":
         
     input_fasta = 'path/to/training_sequences.fasta'
-    base_directory = 'path/to/input_data'
+    input_dir = 'path/to/input_data'
     
-    fasta_alpha(input_fasta, base_directory)
+    fasta_alpha(input_fasta, input_dir, max_retries=10, include_pae=False)
