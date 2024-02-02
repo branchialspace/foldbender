@@ -23,7 +23,7 @@ def esm2_labels(embeddings_path, sequence_ids_path, input_dir):
             pyg_data_object = torch.load(file_path)
 
             # Add the embedding as an attribute 'y'
-            pyg_data_object.y = torch.tensor(embedding_dict[seq_id], dtype=torch.float32)
+            pyg_data_object.y = torch.tensor(embedding_dict[seq_id], dtype=torch.float16)
 
             # Save the updated PyG object back to the same file
             torch.save(pyg_data_object, file_path)
