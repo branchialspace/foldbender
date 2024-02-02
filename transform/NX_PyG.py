@@ -10,6 +10,7 @@ from torch_geometric.data import Data
 from torch_geometric.utils import to_undirected
 import numpy as np
 import csv
+from tqdm import tqdm
 
 def save_encoders(encoders, directory):
     for name, encoder in encoders.items():
@@ -186,11 +187,12 @@ def nx_pyg(input_dir, output_dir, include_pae=False):
     num_processes = min(cpu_count(), len(files_to_process))
 
     with Pool(num_processes) as pool:
-        pool.map(process_file, files_to_process)
+        for _ in tqdm(pool.imap_unordered(process_file, files_to_process), total=len(files_to_process), desc="Converting NetworkX Graphs to PyTorch Geometric Data Object Graphs"):
+            pass
 
 if __name__ == "__main__":
 
-    input_directory = '/proteins_sample/'
-    output_directory = '/content/drive/MyDrive/protein-DATA/prot-sample/'
+    input_dir = '/proteins_sample/'
+    output_dir = '/content/drive/MyDrive/protein-DATA/prot-sample/'
     
-    nx_pyg(input_directory, output_directory)
+    nx_pyg(input_dir, output_dir, include_pae=False)
