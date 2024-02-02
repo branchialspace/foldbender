@@ -6,14 +6,14 @@ from torch_geometric.data import Data
 from tqdm import tqdm
 
 
-def foldseek_regression_labels(input_directory, foldseek_labels):
+def foldseek_regression_labels(input_dir, foldseek_targets):
     # Load the foldseek_labels.tsv file and parse it
-    df = pd.read_csv(foldseek_labels, sep='\t', header=None, names=['Term', 'EntryID_with_extra', 'Value'])
+    df = pd.read_csv(foldseek_targets, sep='\t', header=None, names=['Term', 'EntryID_with_extra', 'Value'])
     df['EntryID'] = df['EntryID_with_extra'].apply(lambda x: x.split('.')[0])
     df.sort_values(by='Term', inplace=True)
 
     # List all files in the input directory
-    all_files = os.listdir(input_directory)
+    all_files = os.listdir(input_dir)
 
     # Identify all unique terms associated with the files in the directory
     entries_in_directory = [filename.split('.')[0] for filename in all_files if filename.endswith('.pt')]
@@ -24,7 +24,7 @@ def foldseek_regression_labels(input_directory, foldseek_labels):
     for filename in tqdm(all_files, desc="Assigning Foldseek cluster similarity score regression labels as y"):
         if filename.endswith('.pt'):
             entry_id = filename.split('.')[0]  # Assuming the file names are just EntryID.pt
-            file_path = os.path.join(input_directory, filename)
+            file_path = os.path.join(input_dir, filename)
             data_obj = torch.load(file_path)
 
             # Initialize y vector for all unique terms
@@ -43,7 +43,7 @@ def foldseek_regression_labels(input_directory, foldseek_labels):
               
 if __name__ == "__main__":
     
-    input_directory = "/content/drive/MyDrive/protein-DATA/sample"
-    foldseek_labels = ".tsv"
+    input_dir = "/content/drive/MyDrive/protein-DATA/sample"
+    foldseek_targets = ".tsv"
     
-    foldseek_regression_labels(input_directory, foldseek_labels)
+    foldseek_regression_labels(input_dir, foldseek_targets)
