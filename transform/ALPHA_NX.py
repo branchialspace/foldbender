@@ -10,12 +10,12 @@ from rdkit.Chem import rdMolTransforms
 from Bio.PDB import PDBParser, DSSP
 from tqdm import tqdm
 
-def protein_molecule_graphs(input_directory, output_directory, file_name, include_pae=False):
-    pdb_file_path = os.path.join(input_directory, file_name + '.pdb')
-    json_file_path = os.path.join(input_directory, file_name + '.json')
+def protein_molecule_graphs(input_dir, output_dir, file_name, include_pae=False):
+    pdb_file_path = os.path.join(input_dir, file_name + '.pdb')
+    json_file_path = os.path.join(input_dir, file_name + '.json')
 
     output_file_name = file_name.split("/")[-1] + '.pkl'
-    output_file_path = os.path.join(output_directory, output_file_name)
+    output_file_path = os.path.join(output_dir, output_file_name)
 
     # Check if the pickle file already exists in the output directory
     if os.path.exists(output_file_path):
@@ -197,13 +197,13 @@ def process_file_wrapper(args):
     """
     return protein_molecule_graphs(*args)
 
-def alpha_nx(input_directory, output_directory, include_pae=False, max_workers=None):
-    os.makedirs(output_directory, exist_ok=True)
-    processed_files = [f for f in os.listdir(output_directory) if f.endswith('.pkl')]
+def alpha_nx(input_dir, output_dir, include_pae=False, max_workers=None):
+    os.makedirs(output_dir, exist_ok=True)
+    processed_files = [f for f in os.listdir(output_dir) if f.endswith('.pkl')]
 
     # Prepare a list of arguments for each file to be processed
     tasks = []
-    for file in os.listdir(input_directory):
+    for file in os.listdir(input_dir):
         if file.endswith(".pdb"):
             file_name_without_extension = os.path.splitext(file)[0]
             output_file_name = file_name_without_extension + '.pkl'
@@ -211,7 +211,7 @@ def alpha_nx(input_directory, output_directory, include_pae=False, max_workers=N
             if output_file_name in processed_files:
                 continue
 
-            task_args = (input_directory, output_directory, file_name_without_extension, include_pae)
+            task_args = (input_dir, output_dir, file_name_without_extension, include_pae)
             tasks.append(task_args)
 
     # Use ProcessPoolExecutor to process files in parallel
@@ -222,7 +222,7 @@ def alpha_nx(input_directory, output_directory, include_pae=False, max_workers=N
 
 if __name__ == "__main__":
     
-    input_directory = 'path/to/input_directory'
-    output_directory = 'path/to/output_directory'
+    input_dir = 'path/to/input_directory'
+    output_dir = 'path/to/output_directory'
     
-    alpha_nx(input_directory, output_directory)
+    alpha_nx(input_dir, output_dir)
