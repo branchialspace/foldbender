@@ -7,7 +7,7 @@ import pandas as pd
 
 def foldseek_targets(file_clusters, file_scores):
     # Define the output file name
-    file_output = file_clusters.rsplit('.', 1)[0] + '_labels.tsv'
+    file_output = file_clusters.rsplit('.', 1)[0] + '_targets.tsv'
 
     # Read the clusters file
     df_clusters = pd.read_csv(file_clusters, sep='\t', header=None, names=['representative', 'member'])
@@ -22,8 +22,8 @@ def foldseek_targets(file_clusters, file_scores):
     # Read the similarity scores file
     df_scores = pd.read_csv(file_scores, sep='\t', header=None, names=['representative', 'member', 'score'], usecols=[0, 1, 2])
 
-    # Convert scores to float32
-    df_scores['score'] = df_scores['score'].astype('float32')
+    # Convert scores to float16
+    df_scores['score'] = df_scores['score'].astype('float16')
 
     # Filter scores by representatives in the filtered list and members from the clusters file
     df_scores_filtered = df_scores[df_scores['representative'].isin(filtered_reps) & df_scores['member'].isin(all_members)]
