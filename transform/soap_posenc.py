@@ -6,10 +6,11 @@ from ase import Atoms
 from dscribe.descriptors import SOAP
 from torch_geometric.data import Data
 import os
+from tqdm import tqdm
 
 def soap_local(input_dir, r_cut=3, n_max=3, l_max=3, sigma=0.1):
     # Iterate over the .pt files in the directory
-    for filename in os.listdir(input_dir):
+    for filename in tqdm(os.listdir(input_dir), desc="Computing SOAP descriptor local 3d-coordinate positional encodings"):
         if filename.endswith('.pt'):
            # Load the PyTorch Geometric Data object
             file_path = os.path.join(input_dir, filename)
