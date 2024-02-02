@@ -84,6 +84,5 @@ def minmax_norm(input_dir):
 if __name__ == "__main__":
 
     input_dir = '/content/drive/MyDrive/protein-DATA/prot-sample'
-    output_dir = '/content/drive/MyDrive/protein-DATA/sample-normalized'
     
-    minmax_norm(input_dir, output_dir)
+    minmax_norm(input_dir)
