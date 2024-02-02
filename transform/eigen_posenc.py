@@ -3,6 +3,7 @@ import os
 import torch
 import torch.nn.functional as F
 from torch_geometric.utils import is_undirected, to_undirected, get_laplacian
+from tqdm import tqdm
       
 def compute_posenc_stats(data, is_undirected, max_freqs):
       """Compute positional encodings for the given graph and store them in the data object.
@@ -117,7 +118,7 @@ def precompute_eigens(input_dir, max_freqs=16):
     is_undirected = all(d.is_undirected() for d in sample_graphs)
     
     # Process each file
-    for filename in dataset_files:
+    for filename in tqdm(dataset_files, desc="Computing Graph Laplacian Positional Encodings"):
         data_path = os.path.join(input_dir, filename)
         data = torch.load(data_path)
         compute_posenc_stats(data, is_undirected, max_freqs)
