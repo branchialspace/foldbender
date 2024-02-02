@@ -5,14 +5,14 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from collections import Counter
 
 
-def foldseek_multiclass_split(input_directory, valid_size=0.3, test_size=0.3, random_state=42):
+def foldseek_multiclass_split(input_dir, valid_size=0.3, test_size=0.3, random_state=42):
 
     # Define the path for saving indices in the parent directory of input_directory
-    indices_file_path = os.path.join(os.path.dirname(input_directory), os.path.basename(input_directory) + "_split_indices.pt")
+    indices_file_path = os.path.join(os.path.dirname(input_dir), os.path.basename(input_dir) + "_split_indices.pt")
 
     # Gather all .pt files
-    file_list = [f for f in os.listdir(input_directory) if f.endswith('.pt')]
-    file_paths = [os.path.join(input_directory, f) for f in file_list]
+    file_list = [f for f in os.listdir(input_dir) if f.endswith('.pt')]
+    file_paths = [os.path.join(input_dir, f) for f in file_list]
 
     # Extract y attributes for stratification
     labels = []
@@ -67,6 +67,6 @@ def foldseek_multiclass_split(input_directory, valid_size=0.3, test_size=0.3, ra
 
 if __name__ == "__main__":
   
-    input_directory = '/content/41k_prot_foldseek'
+    input_dir = '/content/41k_prot_foldseek'
   
-    indices_dict = foldseek_multiclass_split(input_directory)
+    indices_dict = foldseek_multiclass_split(input_dir)
