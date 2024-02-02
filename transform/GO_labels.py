@@ -3,6 +3,7 @@ import torch
 import pandas as pd
 import os
 from torch_geometric.data import Data
+from tqdm import tqdm
 
 def go_labels(input_dir, train_terms):
     # Load the train_terms.tsv file and parse it
@@ -18,7 +19,7 @@ def go_labels(input_dir, train_terms):
     term_to_index = {term: i for i, term in enumerate(unique_terms)}
 
     # Process each file in the directory
-    for filename in all_files:
+    for filename in tqdm(all_files, desc="Assigning Gene Ontology Annotation labels as y"):
         if filename.endswith('.pt'):
             entry_id = filename.split('.')[0]  # Assuming the file names are just EntryID.pt
 
