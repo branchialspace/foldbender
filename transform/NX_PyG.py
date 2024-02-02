@@ -94,12 +94,12 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
 
         for node, data in G.nodes(data=True):
             # Node features
-            atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")])
+            atom_coords = torch.tensor([float(i) for i in data['atom_coords'].split(",")], dtype=torch.float16)
             atom_coords_list.append(atom_coords)
-            feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]]), dtype=torch.float32).squeeze(0),
-                    torch.tensor(ohe_atom_types.transform([[data['atomic_number']]]), dtype=torch.float32).squeeze(0),
-                    torch.tensor(ohe_residue_names.transform([[data['residue_name']]]), dtype=torch.float32).squeeze(0),
-                    torch.tensor(ohe_secondary_structures.transform([[data.get('secondary_structure', '-')]]), dtype=torch.float32).squeeze(0),
+            feat.append(torch.cat([torch.tensor(ohe_atom_names.transform([[data['atom_name']]]), dtype=torch.float16).squeeze(0),
+                    torch.tensor(ohe_atom_types.transform([[data['atomic_number']]]), dtype=torch.float16).squeeze(0),
+                    torch.tensor(ohe_residue_names.transform([[data['residue_name']]]), dtype=torch.float16).squeeze(0),
+                    torch.tensor(ohe_secondary_structures.transform([[data.get('secondary_structure', '-')]]), dtype=torch.float16).squeeze(0),
                     torch.tensor([[data['degree'],
                                   data['aromatic'],
                                   data['residue_number'],
@@ -114,7 +114,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
                                   data.get('NH_O_2_relidx', 0),
                                   data.get('NH_O_2_energy', 0),
                                   data.get('O_NH_2_relidx', 0),
-                                  data.get('O_NH_2_energy', 0)]], dtype=torch.float32).squeeze(0)
+                                  data.get('O_NH_2_energy', 0)]], dtype=torch.float16).squeeze(0)
                 ], dim=0))
 
         for node1, node2, data in G.edges(data=True):
@@ -142,7 +142,7 @@ def process_graph(filename, input_dir, output_dir, encoders, include_pae=False):
         # Convert lists to tensors
         edge_index = torch.LongTensor(edge_index).t().contiguous()
         feat = torch.stack(feat)
-        edge_feat = torch.tensor(edge_feat, dtype=torch.float)
+        edge_feat = torch.tensor(edge_feat, dtype=torch.float16)
 
         # Calculate geometric center and re-align atom_coords
         atom_coords_array = torch.stack(atom_coords_list)
