@@ -3,7 +3,7 @@ from .transform.ALPHA_NX import alpha_nx
 from .transform.NX_PyG import nx_pyg
 from .transform.GO_labels import go_labels
 from .transform.ESM2_labels import esm2_labels
-from .transform.foldseek_labels_regression import foldseek_labels_regression
+from .transform.foldseek_regression_labels import foldseek_regression_labels
 from .transform.foldseek_multiclass_labels import foldseek_multiclass_labels
 from .transform.foldseek_multiclass_split import foldseek_multiclass_split
 from .transform.alphafold_dataset import Alphafold
