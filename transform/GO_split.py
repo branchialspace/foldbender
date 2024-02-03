@@ -4,15 +4,15 @@ import torch
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
 
-def go_split(input_directory):
+def go_split(input_dir):
     # Define the path for saving indices
-    indices_file_path = os.path.join(os.path.dirname(input_directory), f"{os.path.basename(input_directory)}_split_indices.pt")
+    indices_file_path = os.path.join(os.path.dirname(input_dir), f"{os.path.basename(input_dir)}_split_indices.pt")
 
     # Load all files in the input directory
-    file_list = os.listdir(input_directory)
+    file_list = os.listdir(input_dir)
 
     # Load y tensors and stack them
-    ys = [torch.load(os.path.join(input_directory, file)).y for file in file_list]
+    ys = [torch.load(os.path.join(input_dir, file)).y for file in file_list]
     multilabel_format = torch.stack(ys)
 
     # First split into 2 folds
@@ -53,6 +53,6 @@ def go_split(input_directory):
 
 if __name__ == "__main__":
     
-    input_directory = '/content/drive/MyDrive/protein-DATA/sample-final'
+    input_dir = '/content/drive/MyDrive/protein-DATA/sample-final'
     
-    indices_dict = go_split(input_directory)
+    indices_dict = go_split(input_dir)
