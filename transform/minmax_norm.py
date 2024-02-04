@@ -1,4 +1,4 @@
-# minmax normalization
+# minmax normalization for x and edge_attr
 import os
 import torch
 import numpy as np
