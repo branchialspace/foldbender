@@ -6,7 +6,6 @@ from .transform.ESM2.ESM2_labels import esm2_labels
 from .transform.foldseek.foldseek_regression_labels import foldseek_regression_labels
 from .transform.foldseek.foldseek_multiclass_labels import foldseek_multiclass_labels
 from .transform.foldseek.foldseek_multiclass_split import foldseek_multiclass_split
-from .transform.alphafold_dataset import Alphafold
 from .transform.soap_posenc import soap_local
 from .transform.eigen_posenc import precompute_eigens
 from .transform.minmax_norm import minmax_norm
