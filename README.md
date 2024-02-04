@@ -17,7 +17,7 @@ pip install dscribe
 
 
 
-![](alphafold_transform.png)
+![](foldbent.png)
 
 ```bash
 
