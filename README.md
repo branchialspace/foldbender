@@ -1,6 +1,12 @@
 # Foldbender
 Functions for converting Alphafold PDB molecules into graph representations for use with graph networks.
 
+
+
+![](foldbent.png)
+
+
+
 ```bash
 
 # Requirements (In colab)
@@ -14,10 +20,6 @@ pip install ase
 pip install dscribe
 
 ```
-
-
-
-![](foldbent.png)
 
 ```bash
 
