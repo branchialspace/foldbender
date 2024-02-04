@@ -33,7 +33,7 @@ def compute_posenc_stats(data, is_undirected, max_freqs):
       edge_weight = edge_weight.to(device='cuda')
       
       # Create dense Laplacian matrix
-      L = torch.zeros((N, N), device='cuda', dtype=torch.float16))
+      L = torch.zeros((N, N), device='cuda', dtype=torch.float16)
       L[edge_index[0], edge_index[1]] = edge_weight
       
       # Compute eigenvalues and eigenvectors
