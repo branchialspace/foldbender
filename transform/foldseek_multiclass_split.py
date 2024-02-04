@@ -69,4 +69,4 @@ if __name__ == "__main__":
   
     input_dir = '/content/41k_prot_foldseek'
   
-    indices_dict = foldseek_multiclass_split(input_dir)
+    indices_dict = foldseek_multiclass_split(input_dir, valid_size=0.3, test_size=0.3, random_state=42)
