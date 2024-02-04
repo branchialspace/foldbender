@@ -38,7 +38,7 @@ fb.nx_pyg(input_dir="", output_dir="")
 fb.soap_local(input_dir="", r_cut=3, n_max=3, l_max=3, sigma=0.1)
 
 # 5 (gpu)
-fb.precompute_eigens(input_dir="")
+fb.precompute_eigens(input_dir, max_freqs=16)
 
 
 # Task specific:
