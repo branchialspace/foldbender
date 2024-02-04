@@ -43,9 +43,9 @@ fb.precompute_eigens(input_dir="")
 
 fb.minmax_norm(input_dir="")
 
-fb.go_split(input_dir="")
-
 fb.go_labels(input_dir="", train_terms=".tsv")
+
+fb.go_split(input_dir="")
 
 fb.esm2_labels(embeddings_path=".npy", sequence_ids_path=".npy", input_dir="")
 
