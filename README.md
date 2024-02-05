@@ -9,15 +9,17 @@ Functions for converting Alphafold PDB molecules into graph representations for 
 
 ```bash
 
-# Requirements (In colab)
-pip install pyg-lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
-pip install torch-geometric
-pip install rdkit
-pip install Bio 
-sudo apt-get install dssp
-pip install iterative-stratification
-pip install ase
-pip install dscribe
+# Requirements (for Colab runtime)
+# !pip install pyg-lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu121.html > /dev/null 2>&1
+!pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cpu.html > /dev/null 2>&1
+!pip install torch-geometric > /dev/null 2>&1
+!pip install rdkit > /dev/null 2>&1
+!pip install Bio > /dev/null 2>&1
+!echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections > /dev/null 2>&1 && sudo apt-get install -y dssp > /dev/null 2>&1
+!pip install ase > /dev/null 2>&1
+!pip install dscribe > /dev/null 2>&1
+!pip install iterative-stratification > /dev/null 2>&1
+!git clone https://github.com/branchialspace/foldbender.git > /dev/null 2>&1
 
 ```
 
