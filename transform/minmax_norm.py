@@ -1,4 +1,5 @@
-# minmax normalization for x and edge_attr
+# Minmax normalization for x and edge_attr
+# Rounding x, edge_attr and atom_coords
 import os
 import torch
 import numpy as np
@@ -21,16 +22,20 @@ def minmax_norm(input_dir):
             data_path = os.path.join(input_dir, file_name)
             data_object = torch.load(data_path)
 
+            # Convert to float32 for min/max calculation
+            x_min = data_object.x.float().min(dim=0).values.cpu().numpy()
+            x_max = data_object.x.float().max(dim=0).values.cpu().numpy()
+            edge_attr_min = data_object.edge_attr.float().min(dim=0).values.cpu().numpy()
+            edge_attr_max = data_object.edge_attr.float().max(dim=0).values.cpu().numpy()
+
             if global_x_min is None:
-                global_x_min = data_object.x.min(dim=0).values.cpu().numpy()
-                global_x_max = data_object.x.max(dim=0).values.cpu().numpy()
-                global_edge_attr_min = data_object.edge_attr.min(dim=0).values.cpu().numpy()
-                global_edge_attr_max = data_object.edge_attr.max(dim=0).values.cpu().numpy()
+                global_x_min, global_x_max = x_min, x_max
+                global_edge_attr_min, global_edge_attr_max = edge_attr_min, edge_attr_max
             else:
-                global_x_min = np.minimum(global_x_min, data_object.x.min(dim=0).values.cpu().numpy())
-                global_x_max = np.maximum(global_x_max, data_object.x.max(dim=0).values.cpu().numpy())
-                global_edge_attr_min = np.minimum(global_edge_attr_min, data_object.edge_attr.min(dim=0).values.cpu().numpy())
-                global_edge_attr_max = np.maximum(global_edge_attr_max, data_object.edge_attr.max(dim=0).values.cpu().numpy())
+                global_x_min = np.minimum(global_x_min, x_min)
+                global_x_max = np.maximum(global_x_max, x_max)
+                global_edge_attr_min = np.minimum(global_edge_attr_min, edge_attr_min)
+                global_edge_attr_max = np.maximum(global_edge_attr_max, edge_attr_max)
 
     feature_names_x = [f'x_feature_{i}' for i in range(len(global_x_min))]
     feature_names_edge_attr = [f'edge_attr_feature_{i}' for i in range(len(global_edge_attr_min))]
@@ -53,21 +58,31 @@ def minmax_norm(input_dir):
             data_path = os.path.join(input_dir, file_name)
             data_object = torch.load(data_path)
 
-            data_object.x = (data_object.x - torch.tensor(global_x_min, dtype=torch.float16)) / \
-                            (torch.tensor(global_x_max, dtype=torch.float16) - torch.tensor(global_x_min, dtype=torch.float16))
-            data_object.edge_attr = (data_object.edge_attr - torch.tensor(global_edge_attr_min, dtype=torch.float16)) / \
-                                    (torch.tensor(global_edge_attr_max, dtype=torch.float16) - torch.tensor(global_edge_attr_min, dtype=torch.float16))
+            # Perform normalization in float32
+            x_norm = (data_object.x.float() - torch.tensor(global_x_min, dtype=torch.float32)) / \
+                     (torch.tensor(global_x_max, dtype=torch.float32) - torch.tensor(global_x_min, dtype=torch.float32))
+            edge_attr_norm = (data_object.edge_attr.float() - torch.tensor(global_edge_attr_min, dtype=torch.float32)) / \
+                             (torch.tensor(global_edge_attr_max, dtype=torch.float32) - torch.tensor(global_edge_attr_min, dtype=torch.float32))
 
-            data_object.x[torch.isnan(data_object.x)] = 0.0
-            data_object.x = torch.round(data_object.x * 1000000) / 1000000
-            data_object.edge_attr = torch.round(data_object.edge_attr * 1000000) / 1000000
-            data_object.atom_coords = torch.round(data_object.atom_coords * 1000000) / 1000000
+            # Handle NaN values
+            x_norm[torch.isnan(x_norm)] = 0.0
+            edge_attr_norm[torch.isnan(edge_attr_norm)] = 0.0
+
+            # Round off
+            x_norm = torch.round(x_norm * 10000000) / 10000000
+            edge_attr_norm = torch.round(edge_attr_norm * 10000000) / 10000000
+            data_object.atom_coords = torch.round(data_object.atom_coords.float() * 10000000) / 10000000
 
             accumulated_x_mins.append(data_object.x.min(dim=0).values)
             accumulated_x_maxs.append(data_object.x.max(dim=0).values)
             accumulated_edge_attr_mins.append(data_object.edge_attr.min(dim=0).values)
             accumulated_edge_attr_maxs.append(data_object.edge_attr.max(dim=0).values)
             
+            # Convert back to float16
+            data_object.x = x_norm.to(dtype=torch.float16)
+            data_object.edge_attr = edge_attr_norm.to(dtype=torch.float16)
+            data_object.atom_coords = data_object.atom_coords.to(dtype=torch.float16)
+
             torch.save(data_object, data_path)
 
     global_rounded_x_min = torch.stack(accumulated_x_mins).min(dim=0).values.numpy()
