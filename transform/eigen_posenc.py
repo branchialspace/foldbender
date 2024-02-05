@@ -33,7 +33,7 @@ def compute_posenc_stats(data, is_undirected, max_freqs):
       edge_weight = edge_weight.to(device='cuda')
       
       # Create dense Laplacian matrix
-      L = torch.zeros((N, N), device='cuda', dtype=torch.float16)
+      L = torch.zeros((N, N), device='cuda', dtype=torch.float32)
       L[edge_index[0], edge_index[1]] = edge_weight
       
       # Compute eigenvalues and eigenvectors
@@ -43,6 +43,9 @@ def compute_posenc_stats(data, is_undirected, max_freqs):
       EigVals, EigVecs = get_lap_decomp_stats(evals, evects, max_freqs, eigvec_norm)
       
       # Store in data object
+      EigVals = EigVals.to(dtype=torch.float16)
+      EigVecs = EigVecs.to(dtype=torch.float16)
+      
       data.EigVals = EigVals.to('cpu')
       data.EigVecs = EigVecs.to('cpu')
 
