@@ -15,8 +15,8 @@ Functions for converting Alphafold PDB molecules into Pytorch Geometric graph re
 ```bash
 
 # Requirements (for Colab runtime)
-# !pip install pyg-lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu121.html > /dev/null 2>&1
-!pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cpu.html > /dev/null 2>&1
+# !pip install pyg-lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.2.0+cu121.html > /dev/null 2>&1
+!pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.2.0+cpu.html > /dev/null 2>&1
 !pip install torch-geometric > /dev/null 2>&1
 !pip install rdkit > /dev/null 2>&1
 !pip install Bio > /dev/null 2>&1
